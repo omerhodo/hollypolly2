@@ -38,7 +38,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [isInitialized, setIsInitialized] = useState(false);
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [showTeamsModal, setShowTeamsModal] = useState(false);
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -149,7 +148,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const handleCreateRandomTeams = (teamCount: number) => {
     if (options.length < 2) return;
     createRandomTeams(teamCount, options);
-    setShowTeamsModal(true);
   };
 
   if (loading) {
@@ -257,15 +255,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       />
 
       <TeamResultModal
-        isOpen={showTeamsModal && !!room?.teams}
+        isOpen={!!room?.teams}
         teams={room?.teams || []}
         roomTitle={room?.title}
         createdCount={room?.teamsCreatedCount || 0}
         onClose={() => {
-          setShowTeamsModal(false);
-          if (room) {
-            restartRoom();
-          }
+          restartRoom();
         }}
         onCreateNew={() => {
           if (room?.teams) {
