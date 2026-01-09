@@ -51,61 +51,50 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initializeRoom = useCallback(async (roomId: string, title?: string) => {
     setLoading(true);
-    try {
-      // Get or create room
-      const roomDoc = await getDoc(doc(db, 'rooms', roomId));
+    // Get or create room
+    const roomDoc = await getDoc(doc(db, 'rooms', roomId));
 
-      if (!roomDoc.exists()) {
-        // Create new room
-        const newRoom: Room = {
-          id: roomId,
-          created_at: Timestamp.now(),
-          last_activity: Timestamp.now(),
-          result: null,
-          ...(title && { title }),
-        };
-        await setDoc(doc(db, 'rooms', roomId), newRoom);
-        setRoom(newRoom);
-      } else {
-        setRoom({ id: roomDoc.id, ...roomDoc.data() } as Room);
-      }
-
-      // Listen to room changes
-      const unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), (snapshot) => {
-        if (snapshot.exists()) {
-          setRoom({ id: snapshot.id, ...snapshot.data() } as Room);
-        }
-      });
-
-      // Listen to users changes
-      const unsubscribeUsers = onSnapshot(
-        collection(db, 'rooms', roomId, 'users'),
-        (snapshot) => {
-          const usersList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User));
-          setUsers(usersList);
-        }
-      );
-
-      // Listen to options changes
-      const unsubscribeOptions = onSnapshot(
-        collection(db, 'rooms', roomId, 'options'),
-        (snapshot) => {
-          const optionsList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Option));
-          setOptions(optionsList);
-        }
-      );
-
-      setLoading(false);
-
-      return () => {
-        unsubscribeRoom();
-        unsubscribeUsers();
-        unsubscribeOptions();
+    if (!roomDoc.exists()) {
+      // Create new room
+      const newRoom: Room = {
+        id: roomId,
+        created_at: Timestamp.now(),
+        last_activity: Timestamp.now(),
+        result: null,
+        ...(title && { title }),
       };
-    } catch (error) {
-      console.error('Error initializing room:', error);
-      setLoading(false);
+      await setDoc(doc(db, 'rooms', roomId), newRoom);
+      setRoom(newRoom);
+    } else {
+      setRoom({ id: roomDoc.id, ...roomDoc.data() } as Room);
     }
+
+    // Listen to room changes
+    const unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), (snapshot) => {
+      if (snapshot.exists()) {
+        setRoom({ id: snapshot.id, ...snapshot.data() } as Room);
+      }
+    });
+
+    // Listen to users changes
+    const unsubscribeUsers = onSnapshot(
+      collection(db, 'rooms', roomId, 'users'),
+      (snapshot) => {
+        const usersList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User));
+        setUsers(usersList);
+      }
+    );
+
+    // Listen to options changes
+    const unsubscribeOptions = onSnapshot(
+      collection(db, 'rooms', roomId, 'options'),
+      (snapshot) => {
+        const optionsList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Option));
+        setOptions(optionsList);
+      }
+    );
+
+    setLoading(false);
   }, []);
 
   const addOption = useCallback(async (roomId: string, text: string) => {
