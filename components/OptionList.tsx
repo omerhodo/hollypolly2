@@ -196,7 +196,7 @@ export const OptionList: React.FC<OptionListProps> = ({
               >
                 {t('createRandomTeams')}
               </button>
-              
+
               {/* Team Count Counter */}
               <div className="flex items-center gap-2 bg-white border-2 border-cyan-500 rounded-lg px-3 py-2">
                 <button

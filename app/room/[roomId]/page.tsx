@@ -135,7 +135,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
     // Shuffle options array
     const shuffled = [...options].sort(() => Math.random() - 0.5);
-    
+
     // Create teams
     const teams: { teamNumber: number; members: string[] }[] = [];
     for (let i = 0; i < teamCount; i++) {
