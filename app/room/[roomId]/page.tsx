@@ -1,5 +1,6 @@
 'use client';
 
+import { InfoModal } from '@/components/InfoModal';
 import { OptionList } from '@/components/OptionList';
 import { ResultModal } from '@/components/ResultModal';
 import { RoomEntranceModal } from '@/components/RoomEntranceModal';
@@ -31,6 +32,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [showEntranceModal, setShowEntranceModal] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [wasKicked, setWasKicked] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -157,7 +159,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-primary-600">🎲 HollyPolly</h1>
+            <button
+              onClick={() => setShowInfoModal(true)}
+              className="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-2"
+            >
+              🎲 HollyPolly
+            </button>
             <ShareButton roomId={roomId} />
           </div>
         </header>
@@ -196,6 +203,11 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       </div>
 
       {/* Modals */}
+      <InfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+      />
+
       <RoomEntranceModal
         isOpen={showEntranceModal}
         onSubmit={handleUserEnter}

@@ -44,5 +44,15 @@
     "joinDraw": "Join Draw",
     "joiningDraw": "Joining draw:",
     "firstUser": "You're the first! As admin, you can set the room title."
+  },
+  "info": {
+    "title": "What is HollyPolly?",
+    "description": "HollyPolly is a real-time draw application that lets you draw lots with your friends.",
+    "howToUse": "How to Use?",
+    "step1": "1. Create a room and share it with your friends",
+    "step2": "2. Add options (e.g., who cooks, who cleans)",
+    "step3": "3. Click Winner or Loser button to draw",
+    "step4": "4. Result is shown to everyone at the same time!",
+    "close": "Close"
   }
 }

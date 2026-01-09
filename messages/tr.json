@@ -44,5 +44,15 @@
     "joinDraw": "Kuraya Dahil Ol",
     "joiningDraw": "Dahil olduğunuz kura:",
     "firstUser": "İlk katılan sensin! Admin olarak oda başlığını belirleyebilirsin."
+  },
+  "info": {
+    "title": "HollyPolly Nedir?",
+    "description": "HollyPolly, arkadaşlarınızla birlikte gerçek zamanlı kura çekmenizi sağlayan bir uygulamadır.",
+    "howToUse": "Nasıl Kullanılır?",
+    "step1": "1. Bir oda oluşturun ve arkadaşlarınızla paylaşın",
+    "step2": "2. Seçenekleri ekleyin (örn: kimin yemek yapacağı, kimin temizlik yapacağı)",
+    "step3": "3. Kazanan veya Kaybeden butonuna tıklayarak kura çekin",
+    "step4": "4. Sonuç herkese aynı anda gösterilir!",
+    "close": "Kapat"
   }
 }
