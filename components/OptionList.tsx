@@ -158,6 +158,11 @@ export const OptionList: React.FC<OptionListProps> = ({
         </AnimatePresence>
       </div>
 
+      {/* Minimum Options Warning */}
+      {isAdmin && options.length < 2 && (
+        <p className="text-xs text-gray-500 text-center mb-6">{t('needOptions')}</p>
+      )}
+
       {/* Action Buttons */}
       {isAdmin && (
         <div className="mt-12">
@@ -177,9 +182,6 @@ export const OptionList: React.FC<OptionListProps> = ({
               {tRoom('selectLoser')}
             </button>
           </div>
-          {options.length < 2 && (
-            <p className="text-xs text-gray-500 text-center mt-2">{t('needOptions')}</p>
-          )}
         </div>
       )}
     </div>
