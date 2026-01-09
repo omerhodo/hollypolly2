@@ -38,7 +38,7 @@
     "adminCanRemoveFromOptions": "Admin seçili olanı seçeneklerden çıkarabilir"
   },
   "entrance": {
-    "title": "HollyPolly Kura Çekme Uygulamasına Hoşgeldin!",
+    "title": "HollyPolly - Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",
     "namePlaceholder": "Adınızı girin",
     "roomTitlePlaceholder": "Kura Başlığı (Yemeği Kim Yapacak vs.)",
     "join": "Katıl",
@@ -49,11 +49,11 @@
   },
   "info": {
     "title": "HollyPolly Nedir?",
-    "description": "HollyPolly, arkadaşlarınızla birlikte gerçek zamanlı kura çekmenizi sağlayan bir uygulamadır.",
+    "description": "HollyPolly, arkadaşlarınızla birlikte gerçek zamanlı kura çekmenizi ve rastgele takım oluşturmanızı sağlayan bir uygulamadır.",
     "howToUse": "Nasıl Kullanılır?",
     "step1": "1. Bir oda oluşturun ve arkadaşlarınızla paylaşın",
     "step2": "2. Seçenekleri ekleyin (örn: kimin yemek yapacağı, kimin temizlik yapacağı)",
-    "step3": "3. Kazanan veya Kaybeden butonuna tıklayarak kura çekin",
+    "step3": "3. Kazanan/Kaybeden seç veya Rastgele Takım Oluştur butonlarını kullanın",
     "step4": "4. Sonuç herkese aynı anda gösterilir!",
     "close": "Kapat"
   },
