@@ -1,0 +1,48 @@
+{
+  "loading": {
+    "title": "HollyPolly",
+    "subtitle": "Creating new room..."
+  },
+  "room": {
+    "participants": "Participants",
+    "you": "You",
+    "admin": "Admin",
+    "makeAdmin": "Make Admin",
+    "kickUser": "Kick Out",
+    "editName": "Edit Name",
+    "share": "Share",
+    "copied": "Link copied!",
+    "shareMessage": "Join the draw!",
+    "drawName": "Draw Name",
+    "selectWinner": "Select Winner",
+    "selectLoser": "Select Loser",
+    "kickedFromRoom": "You have been kicked from the room"
+  },
+  "options": {
+    "title": "Options",
+    "add": "Add",
+    "delete": "Delete",
+    "addPlaceholder": "Add new option...",
+    "isNotAdmin": "Only admin can add options",
+    "noOptions": "No options added yet",
+    "needOptions": "At least 2 options required"
+  },
+  "result": {
+    "winnerTitle": "Winner!",
+    "loserTitle": "Loser!",
+    "restart": "Restart",
+    "selected": "Selected",
+    "removeFromOptions": "Remove from Options",
+    "adminCanRemoveFromOptions": "Admin can remove the selected from options"
+  },
+  "entrance": {
+    "title": "Welcome to HollyPolly Draw App!",
+    "namePlaceholder": "Enter your name",
+    "roomTitlePlaceholder": "Draw Title (Who Cooks, etc.)",
+    "join": "Join",
+    "createDraw": "Create Draw",
+    "joinDraw": "Join Draw",
+    "joiningDraw": "Joining draw:",
+    "firstUser": "You're the first! As admin, you can set the room title."
+  }
+}

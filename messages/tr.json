@@ -1,0 +1,48 @@
+{
+  "loading": {
+    "title": "HollyPolly",
+    "subtitle": "Yeni oda oluşturuluyor..."
+  },
+  "room": {
+    "participants": "Katılımcılar",
+    "you": "Sen",
+    "admin": "Admin",
+    "makeAdmin": "Admin Yap",
+    "kickUser": "Odadan At",
+    "editName": "İsmi Düzenle",
+    "share": "Paylaş",
+    "copied": "Link kopyalandı!",
+    "shareMessage": "Kura çekimine katılın!",
+    "drawName": "Kura Adı",
+    "selectWinner": "Kazanan Seç",
+    "selectLoser": "Kaybeden Seç",
+    "kickedFromRoom": "Odadan atıldınız"
+  },
+  "options": {
+    "title": "Seçenekler",
+    "add": "Ekle",
+    "delete": "Sil",
+    "addPlaceholder": "Yeni seçenek ekle...",
+    "isNotAdmin": "Sadece admin seçenek ekleyebilir",
+    "noOptions": "Henüz seçenek eklenmedi",
+    "needOptions": "En az 2 seçenek olmalı"
+  },
+  "result": {
+    "winnerTitle": "Kazanan!",
+    "loserTitle": "Kaybeden!",
+    "restart": "Tekrar Başlat",
+    "selected": "Seçilen",
+    "removeFromOptions": "Seçeneklerden Çıkar",
+    "adminCanRemoveFromOptions": "Admin seçili olanı seçeneklerden çıkarabilir"
+  },
+  "entrance": {
+    "title": "HollyPolly Kura Çekme Uygulamasına Hoşgeldin!",
+    "namePlaceholder": "Adınızı girin",
+    "roomTitlePlaceholder": "Kura Başlığı (Yemeği Kim Yapacak vs.)",
+    "join": "Katıl",
+    "createDraw": "Kura Oluştur",
+    "joinDraw": "Kuraya Dahil Ol",
+    "joiningDraw": "Dahil olduğunuz kura:",
+    "firstUser": "İlk katılan sensin! Admin olarak oda başlığını belirleyebilirsin."
+  }
+}
