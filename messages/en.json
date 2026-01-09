@@ -1,4 +1,10 @@
 {
+  "home": {
+    "title": "HollyPolly",
+    "subtitle": "Welcome to the Draw & Random Team Creator App!",
+    "createRoom": "Create Room",
+    "creating": "Creating..."
+  },
   "loading": {
     "title": "HollyPolly",
     "subtitle": "Creating new room..."

@@ -1,4 +1,10 @@
 {
+  "home": {
+    "title": "HollyPolly",
+    "subtitle": "Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",
+    "createRoom": "Oda Oluştur",
+    "creating": "Oluşturuluyor..."
+  },
   "loading": {
     "title": "HollyPolly",
     "subtitle": "Yeni oda oluşturuluyor..."
