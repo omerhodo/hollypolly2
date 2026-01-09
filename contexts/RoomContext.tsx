@@ -3,16 +3,16 @@
 import { db } from '@/lib/firebase/client';
 import type { Option, ResultData, Room, User } from '@/types';
 import {
-    collection,
-    deleteDoc,
-    doc,
-    getDoc,
-    getDocs,
-    onSnapshot,
-    runTransaction,
-    setDoc,
-    Timestamp,
-    updateDoc
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  runTransaction,
+  setDoc,
+  Timestamp,
+  updateDoc
 } from 'firebase/firestore';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
