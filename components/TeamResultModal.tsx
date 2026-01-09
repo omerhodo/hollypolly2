@@ -13,6 +13,7 @@ interface TeamResultModalProps {
   isOpen: boolean;
   teams: Team[];
   roomTitle?: string;
+  createdCount?: number;
   onClose: () => void;
   onCreateNew: () => void;
 }
@@ -21,6 +22,7 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
   isOpen,
   teams,
   roomTitle,
+  createdCount = 0,
   onClose,
   onCreateNew,
 }) => {
@@ -107,19 +109,29 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={onCreateNew}
-              className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
-            >
-              {t('createNew')}
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
-            >
-              {t('close')}
-            </button>
+          <div className="space-y-3">
+            {/* Created count message */}
+            <p className="text-sm text-center text-gray-600">
+              {createdCount === 1
+                ? t('firstTime')
+                : t('nthTime', { count: createdCount })
+              }
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={onCreateNew}
+                className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
+              >
+                {t('createNew')}
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
+              >
+                {t('close')}
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>

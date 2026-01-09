@@ -15,7 +15,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const resolvedParams = use(params);
   const roomId = resolvedParams.roomId;
 
-  const { currentUser, initializeUser, updateUserName, updateHeartbeat, removeUser } = useUser();
+  const { currentUser, initializeUser, updateUserName, updateHeartbeat, removeUser, setCurrentUser } = useUser();
   const {
     room,
     users,
@@ -25,9 +25,11 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     addOption,
     deleteOption,
     makeAdmin,
+    removeAdmin,
     selectResult,
     restartRoom,
     updateRoomTitle,
+    createRandomTeams,
   } = useRoom();
 
   const [showEntranceModal, setShowEntranceModal] = useState(false);
@@ -35,7 +37,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showTeamsModal, setShowTeamsModal] = useState(false);
-  const [randomTeams, setRandomTeams] = useState<{ teamNumber: number; members: string[] }[]>([]);
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -46,6 +47,19 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       }
     }
   }, [currentUser, users, loading]);
+
+  // Sync currentUser admin status with Firestore
+  useEffect(() => {
+    if (!currentUser || users.length === 0) return;
+
+    const firestoreUser = users.find(u => u.id === currentUser.id);
+    if (firestoreUser && firestoreUser.is_admin !== currentUser.is_admin) {
+      // Update currentUser state if admin status changed
+      const updatedUser = { ...currentUser, is_admin: firestoreUser.is_admin };
+      setCurrentUser(updatedUser);
+      console.log(`Admin status updated for ${currentUser.name}: ${firestoreUser.is_admin}`);
+    }
+  }, [currentUser, users, setCurrentUser]);
 
   // Initialize room
   useEffect(() => {
@@ -132,23 +146,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   // Handle random team creation
   const handleCreateRandomTeams = (teamCount: number) => {
     if (options.length < 2) return;
-
-    // Shuffle options array
-    const shuffled = [...options].sort(() => Math.random() - 0.5);
-
-    // Create teams
-    const teams: { teamNumber: number; members: string[] }[] = [];
-    for (let i = 0; i < teamCount; i++) {
-      teams.push({ teamNumber: i + 1, members: [] });
-    }
-
-    // Distribute options to teams
-    shuffled.forEach((option, index) => {
-      const teamIndex = index % teamCount;
-      teams[teamIndex].members.push(option.text);
-    });
-
-    setRandomTeams(teams);
+    createRandomTeams(teamCount, options);
     setShowTeamsModal(true);
   };
 
@@ -205,6 +203,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 currentUser={currentUser}
                 roomId={roomId}
                 onMakeAdmin={makeAdmin}
+                onRemoveAdmin={removeAdmin}
                 onEditName={updateUserName}
                 onKickUser={(userId) => removeUser(userId, roomId)}
               />
@@ -236,13 +235,21 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       />
 
       <TeamResultModal
-        isOpen={showTeamsModal}
-        teams={randomTeams}
+        isOpen={showTeamsModal && !!room?.teams}
+        teams={room?.teams || []}
         roomTitle={room?.title}
-        onClose={() => setShowTeamsModal(false)}
+        createdCount={room?.teamsCreatedCount || 0}
+        onClose={() => {
+          setShowTeamsModal(false);
+          if (room) {
+            restartRoom();
+          }
+        }}
         onCreateNew={() => {
-          const currentTeamCount = randomTeams.length;
-          handleCreateRandomTeams(currentTeamCount);
+          if (room?.teams) {
+            const currentTeamCount = room.teams.length;
+            handleCreateRandomTeams(currentTeamCount);
+          }
         }}
       />
 

@@ -16,6 +16,8 @@ export interface Room {
   last_activity: Timestamp;
   result: ResultData | null;
   title?: string;
+  teams?: TeamData[] | null;
+  teamsCreatedCount?: number;
 }
 
 export interface Option {
@@ -28,6 +30,11 @@ export interface Option {
 export interface ResultData {
   type: 'winner' | 'loser';
   option_id: string;
+}
+
+export interface TeamData {
+  teamNumber: number;
+  members: string[];
 }
 
 export interface LocalStorageUser {

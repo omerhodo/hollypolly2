@@ -11,11 +11,12 @@ interface UserListProps {
   currentUser: User | null;
   roomId: string;
   onMakeAdmin: (userId: string) => void;
+  onRemoveAdmin: (userId: string) => void;
   onEditName: (userId: string, newName: string) => void;
   onKickUser: (userId: string) => void;
 }
 
-export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, onMakeAdmin, onEditName, onKickUser }) => {
+export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, onMakeAdmin, onRemoveAdmin, onEditName, onKickUser }) => {
   const t = useTranslations('room');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -107,14 +108,23 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
                 {t('editName')}
               </button>
             )}
-            {currentUser?.is_admin && user.id !== currentUser.id && !user.is_admin && (
+            {currentUser?.is_admin && user.id !== currentUser.id && (
               <div className="flex gap-2">
-                <button
-                  onClick={() => onMakeAdmin(user.id)}
-                  className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
-                >
-                  {t('makeAdmin')}
-                </button>
+                {!user.is_admin ? (
+                  <button
+                    onClick={() => onMakeAdmin(user.id)}
+                    className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded"
+                  >
+                    {t('makeAdmin')}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => onRemoveAdmin(user.id)}
+                    className="text-xs bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded"
+                  >
+                    {t('removeAdmin')}
+                  </button>
+                )}
                 <button
                   onClick={() => onKickUser(user.id)}
                   className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"

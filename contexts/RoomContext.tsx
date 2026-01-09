@@ -1,7 +1,7 @@
 'use client';
 
 import { db } from '@/lib/firebase/client';
-import type { Option, ResultData, Room, User } from '@/types';
+import type { Option, ResultData, Room, TeamData, User } from '@/types';
 import {
   collection,
   deleteDoc,
@@ -9,7 +9,6 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
-  runTransaction,
   setDoc,
   Timestamp,
   updateDoc
@@ -26,11 +25,13 @@ interface RoomContextType {
   addOption: (roomId: string, text: string) => Promise<void>;
   deleteOption: (optionId: string) => Promise<void>;
   makeAdmin: (userId: string) => Promise<void>;
+  removeAdmin: (userId: string) => Promise<void>;
   selectResult: (type: 'winner' | 'loser') => Promise<void>;
   restartRoom: () => Promise<void>;
   updateRoomTitle: (roomId: string, title: string) => Promise<void>;
   cleanupInactiveUsers: () => Promise<void>;
   cleanupEmptyRoom: () => Promise<void>;
+  createRandomTeams: (teamCount: number, options: Option[]) => Promise<void>;
 }
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -122,20 +123,27 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!room) return;
 
     try {
-      await runTransaction(db, async (transaction) => {
-        // Get all users
-        const usersSnapshot = await getDocs(collection(db, 'rooms', room.id, 'users'));
-
-        // Update all users
-        for (const userDoc of usersSnapshot.docs) {
-          const userRef = doc(db, 'rooms', room.id, 'users', userDoc.id);
-          transaction.update(userRef, { is_admin: userDoc.id === newAdminId });
-        }
-      });
+      // Just promote the selected user to admin, don't demote others
+      const userRef = doc(db, 'rooms', room.id, 'users', newAdminId);
+      await updateDoc(userRef, { is_admin: true });
 
       await updateDoc(doc(db, 'rooms', room.id), { last_activity: Timestamp.now() });
     } catch (error) {
       console.error('Error making admin:', error);
+    }
+  }, [room]);
+
+  const removeAdmin = useCallback(async (userId: string) => {
+    if (!room) return;
+
+    try {
+      // Remove admin status from the user
+      const userRef = doc(db, 'rooms', room.id, 'users', userId);
+      await updateDoc(userRef, { is_admin: false });
+
+      await updateDoc(doc(db, 'rooms', room.id), { last_activity: Timestamp.now() });
+    } catch (error) {
+      console.error('Error removing admin:', error);
     }
   }, [room]);
 
@@ -161,6 +169,8 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     await updateDoc(doc(db, 'rooms', room.id), {
       result: null,
+      teams: null,
+      teamsCreatedCount: null,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -172,6 +182,35 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
       last_activity: Timestamp.now(),
     }, { merge: true });
   }, []);
+
+  const createRandomTeams = useCallback(async (teamCount: number, options: Option[]) => {
+    if (!room || options.length < 2) return;
+
+    // Shuffle options array
+    const shuffled = [...options].sort(() => Math.random() - 0.5);
+
+    // Create teams
+    const teams: TeamData[] = [];
+    for (let i = 0; i < teamCount; i++) {
+      teams.push({ teamNumber: i + 1, members: [] });
+    }
+
+    // Distribute options to teams
+    shuffled.forEach((option, index) => {
+      const teamIndex = index % teamCount;
+      teams[teamIndex].members.push(option.text);
+    });
+
+    // Increment the teams created count
+    const currentCount = room.teamsCreatedCount || 0;
+
+    // Save to Firebase
+    await updateDoc(doc(db, 'rooms', room.id), {
+      teams,
+      teamsCreatedCount: currentCount + 1,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
 
   const cleanupInactiveUsers = useCallback(async () => {
     if (!room) return;
@@ -236,6 +275,22 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => clearTimeout(timer);
   }, [room, users, cleanupEmptyRoom]);
 
+  // Auto-assign admin if no admin exists
+  useEffect(() => {
+    if (!room || users.length === 0) return;
+
+    const hasAdmin = users.some(user => user.is_admin);
+
+    if (!hasAdmin) {
+      // Select random user to be admin
+      const randomIndex = Math.floor(Math.random() * users.length);
+      const newAdmin = users[randomIndex];
+
+      console.log(`No admin found, promoting user ${newAdmin.name} to admin`);
+      makeAdmin(newAdmin.id).catch(err => console.error('Failed to auto-assign admin:', err));
+    }
+  }, [room, users, makeAdmin]);
+
   return (
     <RoomContext.Provider
       value={{
@@ -247,11 +302,13 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addOption,
         deleteOption,
         makeAdmin,
+        removeAdmin,
         selectResult,
         restartRoom,
         updateRoomTitle,
         cleanupInactiveUsers,
         cleanupEmptyRoom,
+        createRandomTeams,
       }}
     >
       {children}

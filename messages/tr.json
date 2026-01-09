@@ -8,6 +8,7 @@
     "you": "Sen",
     "admin": "Admin",
     "makeAdmin": "Admin Yap",
+    "removeAdmin": "Adminlikten Çıkar",
     "kickUser": "Odadan At",
     "editName": "İsmi Düzenle",
     "share": "Paylaş",
@@ -61,6 +62,8 @@
     "title": "Rastgele Takımlar",
     "team": "Takım",
     "close": "Kapat",
-    "createNew": "Yeni Takımlar Oluştur"
+    "createNew": "Yeni Takımlar Oluştur",
+    "firstTime": "Takımlar ilk kez oluşturuldu.",
+    "nthTime": "Takımlar {count}. defa oluşturuldu."
   }
 }

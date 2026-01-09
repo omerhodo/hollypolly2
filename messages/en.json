@@ -8,6 +8,7 @@
     "you": "You",
     "admin": "Admin",
     "makeAdmin": "Make Admin",
+    "removeAdmin": "Remove Admin",
     "kickUser": "Kick Out",
     "editName": "Edit Name",
     "share": "Share",
@@ -61,6 +62,8 @@
     "title": "Random Teams",
     "team": "Team",
     "close": "Close",
-    "createNew": "Create New Teams"
+    "createNew": "Create New Teams",
+    "firstTime": "Teams created for the first time.",
+    "nthTime": "Teams created {count} times."
   }
 }
