@@ -25,7 +25,9 @@
     "addPlaceholder": "Yeni seçenek ekle...",
     "isNotAdmin": "Sadece admin seçenek ekleyebilir",
     "noOptions": "Henüz seçenek eklenmedi",
-    "needOptions": "En az 2 seçenek olmalı"
+    "needOptions": "En az 2 seçenek olmalı",
+    "createRandomTeams": "Rastgele Takım Oluştur",
+    "teamCount": "Takım Sayısı"
   },
   "result": {
     "winnerTitle": "Kazanan!",
@@ -54,5 +56,11 @@
     "step3": "3. Kazanan veya Kaybeden butonuna tıklayarak kura çekin",
     "step4": "4. Sonuç herkese aynı anda gösterilir!",
     "close": "Kapat"
+  },
+  "teams": {
+    "title": "Rastgele Takımlar",
+    "team": "Takım",
+    "close": "Kapat",
+    "createNew": "Yeni Takımlar Oluştur"
   }
 }

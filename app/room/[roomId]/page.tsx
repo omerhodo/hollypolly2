@@ -5,6 +5,7 @@ import { OptionList } from '@/components/OptionList';
 import { ResultModal } from '@/components/ResultModal';
 import { RoomEntranceModal } from '@/components/RoomEntranceModal';
 import { ShareButton } from '@/components/ShareButton';
+import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
 import { useRoom } from '@/contexts/RoomContext';
 import { useUser } from '@/contexts/UserContext';
@@ -33,6 +34,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [isInitialized, setIsInitialized] = useState(false);
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showTeamsModal, setShowTeamsModal] = useState(false);
+  const [randomTeams, setRandomTeams] = useState<{ teamNumber: number; members: string[] }[]>([]);
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -126,6 +129,29 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     return () => clearInterval(heartbeatInterval);
   }, [currentUser, roomId, updateHeartbeat]);
 
+  // Handle random team creation
+  const handleCreateRandomTeams = (teamCount: number) => {
+    if (options.length < 2) return;
+
+    // Shuffle options array
+    const shuffled = [...options].sort(() => Math.random() - 0.5);
+    
+    // Create teams
+    const teams: { teamNumber: number; members: string[] }[] = [];
+    for (let i = 0; i < teamCount; i++) {
+      teams.push({ teamNumber: i + 1, members: [] });
+    }
+
+    // Distribute options to teams
+    shuffled.forEach((option, index) => {
+      const teamIndex = index % teamCount;
+      teams[teamIndex].members.push(option.text);
+    });
+
+    setRandomTeams(teams);
+    setShowTeamsModal(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -196,6 +222,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 onSelectWinner={() => selectResult('winner')}
                 onSelectLoser={() => selectResult('loser')}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
+                onCreateRandomTeams={handleCreateRandomTeams}
               />
             </div>
           </div>
@@ -206,6 +233,16 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       <InfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
+      />
+
+      <TeamResultModal
+        isOpen={showTeamsModal}
+        teams={randomTeams}
+        onClose={() => setShowTeamsModal(false)}
+        onCreateNew={() => {
+          const currentTeamCount = randomTeams.length;
+          handleCreateRandomTeams(currentTeamCount);
+        }}
       />
 
       <RoomEntranceModal

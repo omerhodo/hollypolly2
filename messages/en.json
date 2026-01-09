@@ -25,7 +25,9 @@
     "addPlaceholder": "Add new option...",
     "isNotAdmin": "Only admin can add options",
     "noOptions": "No options added yet",
-    "needOptions": "At least 2 options required"
+    "needOptions": "At least 2 options required",
+    "createRandomTeams": "Create Random Teams",
+    "teamCount": "Team Count"
   },
   "result": {
     "winnerTitle": "Winner!",
@@ -54,5 +56,11 @@
     "step3": "3. Click Winner or Loser button to draw",
     "step4": "4. Result is shown to everyone at the same time!",
     "close": "Close"
+  },
+  "teams": {
+    "title": "Random Teams",
+    "team": "Team",
+    "close": "Close",
+    "createNew": "Create New Teams"
   }
 }

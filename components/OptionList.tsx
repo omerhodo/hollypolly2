@@ -15,6 +15,7 @@ interface OptionListProps {
   onSelectWinner: () => void;
   onSelectLoser: () => void;
   onUpdateTitle: (title: string) => void;
+  onCreateRandomTeams: (teamCount: number) => void;
 }
 
 export const OptionList: React.FC<OptionListProps> = ({
@@ -27,12 +28,14 @@ export const OptionList: React.FC<OptionListProps> = ({
   onSelectWinner,
   onSelectLoser,
   onUpdateTitle,
+  onCreateRandomTeams,
 }) => {
   const t = useTranslations('options');
   const tRoom = useTranslations('room');
   const [newOption, setNewOption] = useState('');
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(roomTitle || '');
+  const [teamCount, setTeamCount] = useState(2);
 
   const isAdmin = currentUser?.is_admin || false;
 
@@ -181,6 +184,41 @@ export const OptionList: React.FC<OptionListProps> = ({
             >
               {tRoom('selectLoser')}
             </button>
+          </div>
+
+          {/* Random Teams Button */}
+          <div className="mt-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onCreateRandomTeams(teamCount)}
+                disabled={options.length < 2}
+                className="flex-1 bg-cyan-500 text-white py-3 rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                {t('createRandomTeams')}
+              </button>
+              
+              {/* Team Count Counter */}
+              <div className="flex items-center gap-2 bg-white border-2 border-cyan-500 rounded-lg px-3 py-2">
+                <button
+                  onClick={() => setTeamCount(Math.max(2, teamCount - 1))}
+                  disabled={teamCount <= 2}
+                  className="w-8 h-8 flex items-center justify-center bg-cyan-500 text-white rounded hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                >
+                  −
+                </button>
+                <span className="min-w-[2rem] text-center font-semibold text-gray-700">
+                  {teamCount}
+                </span>
+                <button
+                  onClick={() => setTeamCount(Math.min(options.length, teamCount + 1))}
+                  disabled={teamCount >= options.length}
+                  className="w-8 h-8 flex items-center justify-center bg-cyan-500 text-white rounded hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 text-center mt-2">{t('teamCount')}: {teamCount}</p>
           </div>
         </div>
       )}
