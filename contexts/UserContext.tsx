@@ -63,6 +63,23 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setCurrentUser(userData);
             console.log('Existing user loaded:', userData);
             return userData;
+          } else {
+            // User was in localStorage but not in Firestore (e.g., after page refresh)
+            // Re-create the same user in Firestore
+            console.log('Re-creating user from localStorage:', localUser);
+            const restoredUser: User = {
+              id: localUser.id,
+              name: localUser.name,
+              avatar: localUser.avatar,
+              is_admin: false, // Will be auto-assigned if needed
+              room_id: roomId,
+              joined_at: Timestamp.now(),
+              last_seen: Timestamp.now(),
+            };
+            await setDoc(doc(db, 'rooms', roomId, 'users', localUser.id), restoredUser);
+            setCurrentUser(restoredUser);
+            console.log('User restored to Firestore:', restoredUser);
+            return restoredUser;
           }
         }
       }
@@ -137,44 +154,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('hollypolly_user');
       }
     }
-  }, [currentUser]);
-
-  // Cleanup user when browser/tab closes
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (currentUser) {
-        // Use synchronous deletion - this is our best chance before page unloads
-        try {
-          // Create a delete request that can complete before unload
-          const userDocRef = doc(db, 'rooms', currentUser.room_id, 'users', currentUser.id);
-          deleteDoc(userDocRef);
-          localStorage.removeItem('hollypolly_user');
-        } catch (error) {
-          console.error('Cleanup on unload failed:', error);
-        }
-      }
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && currentUser) {
-        // Tab is hidden/closed, try to cleanup
-        try {
-          const userDocRef = doc(db, 'rooms', currentUser.room_id, 'users', currentUser.id);
-          deleteDoc(userDocRef);
-          localStorage.removeItem('hollypolly_user');
-        } catch (error) {
-          console.error('Cleanup on visibility change failed:', error);
-        }
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [currentUser]);
 
   return (
