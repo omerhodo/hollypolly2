@@ -12,6 +12,7 @@ interface Team {
 interface TeamResultModalProps {
   isOpen: boolean;
   teams: Team[];
+  roomTitle?: string;
   onClose: () => void;
   onCreateNew: () => void;
 }
@@ -19,6 +20,7 @@ interface TeamResultModalProps {
 export const TeamResultModal: React.FC<TeamResultModalProps> = ({
   isOpen,
   teams,
+  roomTitle,
   onClose,
   onCreateNew,
 }) => {
@@ -59,7 +61,12 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">{t('title')}</h2>
+            <div>
+              {roomTitle && (
+                <p className="text-sm text-gray-500 mb-1">{roomTitle}</p>
+              )}
+              <h2 className="text-2xl font-bold text-gray-800">{t('title')}</h2>
+            </div>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-2xl leading-none"

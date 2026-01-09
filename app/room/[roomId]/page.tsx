@@ -238,6 +238,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       <TeamResultModal
         isOpen={showTeamsModal}
         teams={randomTeams}
+        roomTitle={room?.title}
         onClose={() => setShowTeamsModal(false)}
         onCreateNew={() => {
           const currentTeamCount = randomTeams.length;
