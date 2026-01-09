@@ -24,6 +24,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     initializeRoom,
     addOption,
     deleteOption,
+    clearAllOptions,
     makeAdmin,
     removeAdmin,
     selectResult,
@@ -218,6 +219,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 roomTitle={room?.title}
                 onAddOption={(text) => addOption(roomId, text)}
                 onDeleteOption={deleteOption}
+                onClearAllOptions={clearAllOptions}
                 onSelectWinner={() => selectResult('winner')}
                 onSelectLoser={() => selectResult('loser')}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}

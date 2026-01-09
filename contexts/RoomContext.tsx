@@ -24,6 +24,7 @@ interface RoomContextType {
   initializeRoom: (roomId: string, title?: string) => Promise<void>;
   addOption: (roomId: string, text: string) => Promise<void>;
   deleteOption: (optionId: string) => Promise<void>;
+  clearAllOptions: () => Promise<void>;
   makeAdmin: (userId: string) => Promise<void>;
   removeAdmin: (userId: string) => Promise<void>;
   selectResult: (type: 'winner' | 'loser') => Promise<void>;
@@ -117,6 +118,24 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     await deleteDoc(doc(db, 'rooms', room.id, 'options', optionId));
     await updateDoc(doc(db, 'rooms', room.id), { last_activity: Timestamp.now() });
+  }, [room]);
+
+  const clearAllOptions = useCallback(async () => {
+    if (!room) return;
+
+    try {
+      const optionsSnapshot = await getDocs(collection(db, 'rooms', room.id, 'options'));
+
+      // Delete all options
+      const deletePromises = optionsSnapshot.docs.map(optionDoc =>
+        deleteDoc(doc(db, 'rooms', room.id, 'options', optionDoc.id))
+      );
+
+      await Promise.all(deletePromises);
+      await updateDoc(doc(db, 'rooms', room.id), { last_activity: Timestamp.now() });
+    } catch (error) {
+      console.error('Error clearing all options:', error);
+    }
   }, [room]);
 
   const makeAdmin = useCallback(async (newAdminId: string) => {
@@ -301,6 +320,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initializeRoom,
         addOption,
         deleteOption,
+        clearAllOptions,
         makeAdmin,
         removeAdmin,
         selectResult,

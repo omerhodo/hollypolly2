@@ -29,6 +29,17 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
   }, []);
 
   useEffect(() => {
+    if (result) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [result]);
+
+  useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && result) {
         onRestart();

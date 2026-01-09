@@ -12,6 +12,7 @@ interface OptionListProps {
   roomTitle?: string;
   onAddOption: (text: string) => void;
   onDeleteOption: (optionId: string) => void;
+  onClearAllOptions: () => void;
   onSelectWinner: () => void;
   onSelectLoser: () => void;
   onUpdateTitle: (title: string) => void;
@@ -25,6 +26,7 @@ export const OptionList: React.FC<OptionListProps> = ({
   roomTitle,
   onAddOption,
   onDeleteOption,
+  onClearAllOptions,
   onSelectWinner,
   onSelectLoser,
   onUpdateTitle,
@@ -36,6 +38,7 @@ export const OptionList: React.FC<OptionListProps> = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(roomTitle || '');
   const [teamCount, setTeamCount] = useState(2);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
 
   const isAdmin = currentUser?.is_admin || false;
 
@@ -160,7 +163,17 @@ export const OptionList: React.FC<OptionListProps> = ({
           )}
         </AnimatePresence>
       </div>
-
+      {/* Clear All Options Button */}
+      {isAdmin && options.length > 0 && (
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowClearConfirmModal(true)}
+            className="text-sm text-red-500 hover:text-red-700 hover:underline"
+          >
+            {t('clearAll')}
+          </button>
+        </div>
+      )}
       {/* Minimum Options Warning */}
       {isAdmin && options.length < 2 && (
         <p className="text-xs text-gray-500 text-center mb-6">{t('needOptions')}</p>
@@ -219,6 +232,33 @@ export const OptionList: React.FC<OptionListProps> = ({
               </div>
             </div>
             <p className="text-xs text-gray-500 text-center mt-2">{t('teamCount')}: {teamCount}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Clear All Confirmation Modal */}
+      {showClearConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-bold mb-4">{t('clearAllConfirmTitle')}</h3>
+            <p className="text-gray-600 mb-6">{t('clearAllConfirmMessage')}</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowClearConfirmModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                {t('clearAllCancel')}
+              </button>
+              <button
+                onClick={() => {
+                  onClearAllOptions();
+                  setShowClearConfirmModal(false);
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                {t('clearAllConfirm')}
+              </button>
+            </div>
           </div>
         </div>
       )}
