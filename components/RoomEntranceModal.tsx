@@ -53,7 +53,10 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
         animate={{ opacity: 1, scale: 1 }}
         className="bg-white rounded-lg p-6 max-w-md w-full"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-primary-500">🎲 {t('title')}</h2>
+        <div className="mb-6 text-center">
+          <h2 className="text-3xl font-bold text-primary-500 mb-2">🎲 HollyPolly</h2>
+          <p className="text-base font-normal text-gray-600">{t('subtitle')}</p>
+        </div>
         {isFirstUser && (
           <p className="text-gray-600 mb-4 text-sm">{t('firstUser')}</p>
         )}

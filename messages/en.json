@@ -45,6 +45,7 @@
   },
   "entrance": {
     "title": "Welcome to HollyPolly - Draw & Random Team Creator App!",
+    "subtitle": "Welcome to Draw & Random Team Creator App!",
     "namePlaceholder": "Enter your name",
     "roomTitlePlaceholder": "Draw-Team Title (Who Cooks, etc.)",
     "join": "Join",

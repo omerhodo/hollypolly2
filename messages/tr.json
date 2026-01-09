@@ -45,6 +45,7 @@
   },
   "entrance": {
     "title": "HollyPolly - Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",
+    "subtitle": "Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",
     "namePlaceholder": "Adınızı girin",
     "roomTitlePlaceholder": "Kura-Takım Başlığı (Yemeği Kim Yapacak vs.)",
     "join": "Katıl",
