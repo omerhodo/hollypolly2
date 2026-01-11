@@ -77,5 +77,11 @@
     "createNew": "Yeni Takımlar Oluştur",
     "firstTime": "Takımlar ilk kez oluşturuldu.",
     "nthTime": "Takımlar {count}. defa oluşturuldu."
+  },
+  "leaveRoom": {
+    "title": "Odadan Ayrılıyor musunuz?",
+    "message": "Odadan ayrılmak istediğinize emin misiniz? Anasayfaya yönlendirileceksiniz.",
+    "confirm": "Evet, Ayrıl",
+    "cancel": "Vazgeç"
   }
 }

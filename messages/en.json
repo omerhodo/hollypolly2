@@ -77,5 +77,11 @@
     "createNew": "Create New Teams",
     "firstTime": "Teams created for the first time.",
     "nthTime": "Teams created {count} times."
+  },
+  "leaveRoom": {
+    "title": "Leave Room?",
+    "message": "Are you sure you want to leave the room? You will be redirected to the home page.",
+    "confirm": "Yes, Leave",
+    "cancel": "Cancel"
   }
 }

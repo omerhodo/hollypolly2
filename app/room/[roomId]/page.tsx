@@ -2,6 +2,7 @@
 
 import { Footer } from '@/components/Footer';
 import { InfoModal } from '@/components/InfoModal';
+import { LeaveRoomModal } from '@/components/LeaveRoomModal';
 import { OptionList } from '@/components/OptionList';
 import { ResultModal } from '@/components/ResultModal';
 import { RoomEntranceModal } from '@/components/RoomEntranceModal';
@@ -10,6 +11,7 @@ import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
 import { useRoom } from '@/contexts/RoomContext';
 import { useUser } from '@/contexts/UserContext';
+import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 
 export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -38,6 +40,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [isInitialized, setIsInitialized] = useState(false);
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const router = useRouter();
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -150,6 +154,15 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     createRandomTeams(teamCount, options);
   };
 
+  // Handle leave room
+  const handleLeaveRoom = () => {
+    if (currentUser) {
+      removeUser(currentUser.id, roomId);
+    }
+    localStorage.removeItem('hollypolly_user');
+    router.push('/');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -183,9 +196,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="text-2xl font-bold text-primary-600 flex items-center gap-2">
+            <button
+              onClick={() => setShowLeaveModal(true)}
+              className="text-2xl font-bold text-primary-600 flex items-center gap-2 hover:text-primary-700 transition-colors cursor-pointer"
+            >
               🎲 HollyPolly
-            </div>
+            </button>
             <div className="flex items-center gap-3">
               <ShareButton roomId={roomId} />
               <button
@@ -249,6 +265,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       </div>
 
       {/* Modals */}
+      <LeaveRoomModal
+        isOpen={showLeaveModal}
+        onConfirm={handleLeaveRoom}
+        onCancel={() => setShowLeaveModal(false)}
+      />
+
       <InfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
