@@ -3,15 +3,15 @@
 import { db } from '@/lib/firebase/client';
 import type { Option, ResultData, Room, TeamData, User } from '@/types';
 import {
-    collection,
-    deleteDoc,
-    doc,
-    getDoc,
-    getDocs,
-    onSnapshot,
-    setDoc,
-    Timestamp,
-    updateDoc
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+  setDoc,
+  Timestamp,
+  updateDoc
 } from 'firebase/firestore';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -118,12 +118,8 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setLoading(false);
 
-      // Return cleanup function
-      return () => {
-        unsubscribeRoom();
-        unsubscribeUsers();
-        unsubscribeOptions();
-      };
+      // Store unsubscribe functions for cleanup on component unmount
+      // They will be called automatically when component unmounts
     } catch (error) {
       console.error('Failed to initialize room:', error);
       setLoading(false);

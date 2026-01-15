@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
   },
   // Optimize output
   output: 'standalone',
-  // Reduce bundle size
-  swcMinify: true,
   // Prevent Vercel timeout issues
   staticPageGenerationTimeout: 120,
 };
