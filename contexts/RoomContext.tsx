@@ -3,15 +3,15 @@
 import { db } from '@/lib/firebase/client';
 import type { Option, ResultData, Room, TeamData, User } from '@/types';
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  setDoc,
-  Timestamp,
-  updateDoc
+    collection,
+    deleteDoc,
+    doc,
+    getDoc,
+    getDocs,
+    onSnapshot,
+    setDoc,
+    Timestamp,
+    updateDoc
 } from 'firebase/firestore';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,50 +53,83 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initializeRoom = useCallback(async (roomId: string, title?: string) => {
     setLoading(true);
-    // Get or create room
-    const roomDoc = await getDoc(doc(db, 'rooms', roomId));
+    try {
+      // Get or create room with timeout
+      const roomDoc = await Promise.race([
+        getDoc(doc(db, 'rooms', roomId)),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Firebase timeout')), 8000)
+        )
+      ]);
 
-    if (!roomDoc.exists()) {
-      // Create new room
-      const newRoom: Room = {
-        id: roomId,
-        created_at: Timestamp.now(),
-        last_activity: Timestamp.now(),
-        result: null,
-        ...(title && { title }),
+      if (!roomDoc.exists()) {
+        // Create new room
+        const newRoom: Room = {
+          id: roomId,
+          created_at: Timestamp.now(),
+          last_activity: Timestamp.now(),
+          result: null,
+          ...(title && { title }),
+        };
+        await setDoc(doc(db, 'rooms', roomId), newRoom);
+        setRoom(newRoom);
+      } else {
+        setRoom({ id: roomDoc.id, ...roomDoc.data() } as Room);
+      }
+
+      // Listen to room changes with error handling
+      const unsubscribeRoom = onSnapshot(
+        doc(db, 'rooms', roomId),
+        (snapshot) => {
+          if (snapshot.exists()) {
+            setRoom({ id: snapshot.id, ...snapshot.data() } as Room);
+          }
+        },
+        (error) => {
+          console.error('Room snapshot error:', error);
+          // Retry connection after 2 seconds
+          setTimeout(() => initializeRoom(roomId, title), 2000);
+        }
+      );
+
+      // Listen to users changes with error handling
+      const unsubscribeUsers = onSnapshot(
+        collection(db, 'rooms', roomId, 'users'),
+        (snapshot) => {
+          const usersList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User));
+          setUsers(usersList);
+        },
+        (error) => {
+          console.error('Users snapshot error:', error);
+        }
+      );
+
+      // Listen to options changes with error handling
+      const unsubscribeOptions = onSnapshot(
+        collection(db, 'rooms', roomId, 'options'),
+        (snapshot) => {
+          const optionsList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Option));
+          setOptions(optionsList);
+        },
+        (error) => {
+          console.error('Options snapshot error:', error);
+        }
+      );
+
+      setLoading(false);
+
+      // Return cleanup function
+      return () => {
+        unsubscribeRoom();
+        unsubscribeUsers();
+        unsubscribeOptions();
       };
-      await setDoc(doc(db, 'rooms', roomId), newRoom);
-      setRoom(newRoom);
-    } else {
-      setRoom({ id: roomDoc.id, ...roomDoc.data() } as Room);
+    } catch (error) {
+      console.error('Failed to initialize room:', error);
+      setLoading(false);
+      // Retry after delay
+      setTimeout(() => initializeRoom(roomId, title), 3000);
     }
-
-    // Listen to room changes
-    const unsubscribeRoom = onSnapshot(doc(db, 'rooms', roomId), (snapshot) => {
-      if (snapshot.exists()) {
-        setRoom({ id: snapshot.id, ...snapshot.data() } as Room);
-      }
-    });
-
-    // Listen to users changes
-    const unsubscribeUsers = onSnapshot(
-      collection(db, 'rooms', roomId, 'users'),
-      (snapshot) => {
-        const usersList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User));
-        setUsers(usersList);
-      }
-    );
-
-    // Listen to options changes
-    const unsubscribeOptions = onSnapshot(
-      collection(db, 'rooms', roomId, 'options'),
-      (snapshot) => {
-        const optionsList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Option));
-        setOptions(optionsList);
-      }
-    );
-
-    setLoading(false);
   }, []);
 
   const addOption = useCallback(async (roomId: string, text: string) => {

@@ -1,5 +1,5 @@
 import { getApps, initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,5 +10,26 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-export const db = getFirestore(app);
+// Validate config
+if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
+  throw new Error('Firebase configuration is incomplete. Check environment variables.');
+}
+
+let app;
+let db;
+
+try {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
+  // Use persistent cache settings for better Vercel performance
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true, // Vercel için önemli
+    experimentalAutoDetectLongPolling: true,
+  });
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  app = getApps()[0] || initializeApp(firebaseConfig);
+  db = getFirestore(app);
+}
+
+export { db };
