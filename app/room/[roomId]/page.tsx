@@ -1,5 +1,6 @@
 'use client';
 
+import { AdBannerSpacer } from '@/components/AdBannerSpacer';
 import { Footer } from '@/components/Footer';
 import { InfoModal } from '@/components/InfoModal';
 import { LeaveRoomModal } from '@/components/LeaveRoomModal';
@@ -11,6 +12,7 @@ import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
 import { useRoom } from '@/contexts/RoomContext';
 import { useUser } from '@/contexts/UserContext';
+import { useInterstitialAd } from '@/hooks/useCapacitor';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 
@@ -42,6 +44,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const router = useRouter();
+  const { showInterstitialAd } = useInterstitialAd();
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -254,8 +257,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 onAddOption={(text) => addOption(roomId, text)}
                 onDeleteOption={deleteOption}
                 onClearAllOptions={clearAllOptions}
-                onSelectWinner={() => selectResult('winner')}
-                onSelectLoser={() => selectResult('loser')}
+                onSelectWinner={() => {
+                  selectResult('winner');
+                  showInterstitialAd().catch(() => {});
+                }}
+                onSelectLoser={() => {
+                  selectResult('loser');
+                  showInterstitialAd().catch(() => {});
+                }}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
                 onCreateRandomTeams={handleCreateRandomTeams}
               />
@@ -313,6 +322,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       />
 
       <Footer />
+      <AdBannerSpacer />
     </>
   );
 }

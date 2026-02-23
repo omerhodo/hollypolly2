@@ -1,5 +1,6 @@
 'use client';
 
+import { useInterstitialAd } from '@/hooks/useCapacitor';
 import { db } from '@/lib/firebase/client';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
@@ -12,6 +13,7 @@ export default function HomePage() {
   const router = useRouter();
   const t = useTranslations('home');
   const [isCreating, setIsCreating] = useState(false);
+  const { showInterstitialAd } = useInterstitialAd();
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
@@ -32,6 +34,9 @@ export default function HomePage() {
 
       // Redirect to the room
       router.push(`/room/${roomId}`);
+
+      // Show interstitial ad after navigation starts
+      showInterstitialAd().catch(() => {});
     } catch (error) {
       console.error('Error creating room:', error);
       alert('Oda oluşturulurken hata oluştu. Lütfen tekrar deneyin.');

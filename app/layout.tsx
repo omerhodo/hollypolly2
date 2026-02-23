@@ -1,6 +1,7 @@
+import { CapacitorProvider } from '@/components/CapacitorProvider';
 import { RoomProvider } from '@/contexts/RoomContext';
 import { UserProvider } from '@/contexts/UserContext';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import './globals.css';
@@ -22,6 +23,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#f97316',
+};
+
 export default async function RootLayout({
   children,
 }: {
@@ -33,11 +41,13 @@ export default async function RootLayout({
     <html lang="tr">
       <body>
         <NextIntlClientProvider messages={messages}>
-          <UserProvider>
-            <RoomProvider>
-              {children}
-            </RoomProvider>
-          </UserProvider>
+          <CapacitorProvider>
+            <UserProvider>
+              <RoomProvider>
+                {children}
+              </RoomProvider>
+            </UserProvider>
+          </CapacitorProvider>
         </NextIntlClientProvider>
       </body>
     </html>
