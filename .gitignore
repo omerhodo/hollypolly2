@@ -36,3 +36,9 @@ next-env.d.ts
 # Capacitor native platforms
 /android/
 /ios/
+
+# Generated App Store screenshots
+/assets/screenshots/
+
+# Docs
+/docs/
