@@ -16,9 +16,14 @@ const fs = require('fs');
 
 const APP_URL = 'https://hollypolly.vercel.app';
 const BASE_DIR = path.join(__dirname, 'screenshots');
+
 // iPhone 14 Plus: 428x926 logical x3 = 1284x2778 px
-const VIEWPORT = { width: 428, height: 926 };
-const SCALE = 3;
+const IPHONE_VIEWPORT = { width: 428, height: 926 };
+const IPHONE_SCALE = 3;
+
+// iPad 13" (M4 Pro): 1032x1376 logical x2 = 2064x2752 px
+const IPAD_VIEWPORT = { width: 1032, height: 1376 };
+const IPAD_SCALE = 2;
 
 // ------------------------------------------------------------------
 // Language configs
@@ -75,10 +80,14 @@ const LANG_CONFIG = {
   },
 };
 
-// CLI: node gen_screenshots.js --lang=tr|en    (default = run both)
+// CLI flags:
+//   --lang=tr|en           (default = both)
+//   --device=iphone|ipad   (default = iphone)
 const args = process.argv.slice(2);
-const langArg = (args.find((a) => a.startsWith('--lang=')) || '').replace('--lang=', '');
+const langArg   = (args.find((a) => a.startsWith('--lang='))   || '').replace('--lang=', '');
+const deviceArg = (args.find((a) => a.startsWith('--device=')) || '').replace('--device=', '');
 const langs = langArg ? [langArg] : ['tr', 'en'];
+const device = deviceArg || 'iphone'; // 'iphone' | 'ipad'
 
 // ------------------------------------------------------------------
 
@@ -100,13 +109,18 @@ async function clickText(page, ...texts) {
   return false;
 }
 
-async function runLang(browser, cfg) {
-  const outDir = path.join(BASE_DIR, cfg.dir);
+async function runLang(browser, cfg, deviceType = 'iphone') {
+  const isIpad = deviceType === 'ipad';
+  const subDir = isIpad ? path.join('ipad', cfg.dir) : cfg.dir;
+  const outDir = path.join(BASE_DIR, subDir);
   fs.mkdirSync(outDir, { recursive: true });
 
+  const viewport = isIpad ? IPAD_VIEWPORT : IPHONE_VIEWPORT;
+  const scale    = isIpad ? IPAD_SCALE    : IPHONE_SCALE;
+
   const context = await browser.newContext({
-    viewport: VIEWPORT,
-    deviceScaleFactor: SCALE,
+    viewport,
+    deviceScaleFactor: scale,
     locale: cfg.locale,
     colorScheme: 'light',
     userAgent:
@@ -119,7 +133,7 @@ async function runLang(browser, cfg) {
   console.log('  -> Screen 1: Home');
   await page.goto(APP_URL, { waitUntil: 'networkidle', timeout: 30000 });
   await wait(1500);
-  await shot(page, cfg.dir, cfg.screens[0]);
+  await shot(page, subDir, cfg.screens[0]);
 
   // Navigate into room
   await clickText(page, cfg.createBtn);
@@ -145,7 +159,7 @@ async function runLang(browser, cfg) {
 
   // SCREEN 2: Room + Options
   console.log('  -> Screen 2: Room & options');
-  await shot(page, cfg.dir, cfg.screens[1]);
+  await shot(page, subDir, cfg.screens[1]);
 
   // Pick winner
   console.log('  -> Picking winner...');
@@ -154,7 +168,7 @@ async function runLang(browser, cfg) {
 
   // SCREEN 3: Winner
   console.log('  -> Screen 3: Winner');
-  await shot(page, cfg.dir, cfg.screens[2]);
+  await shot(page, subDir, cfg.screens[2]);
   await clickText(page, cfg.restartBtn);
   await wait(800);
 
@@ -165,7 +179,7 @@ async function runLang(browser, cfg) {
 
   // SCREEN 4: Teams
   console.log('  -> Screen 4: Teams');
-  await shot(page, cfg.dir, cfg.screens[3]);
+  await shot(page, subDir, cfg.screens[3]);
   await clickText(page, cfg.closeBtn);
   await wait(800);
 
@@ -176,7 +190,7 @@ async function runLang(browser, cfg) {
 
   // SCREEN 5: Info
   console.log('  -> Screen 5: Info');
-  await shot(page, cfg.dir, cfg.screens[4]);
+  await shot(page, subDir, cfg.screens[4]);
 
   await context.close();
 }
@@ -184,13 +198,16 @@ async function runLang(browser, cfg) {
 (async () => {
   const browser = await chromium.launch({ headless: true });
 
+  const px = device === 'ipad' ? '2064x2752' : '1284x2778';
+
   for (const lang of langs) {
     const cfg = LANG_CONFIG[lang];
     if (!cfg) { console.error('Unknown lang: ' + lang); continue; }
+    const outPath = device === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
     console.log('\n' + '='.repeat(55));
-    console.log('Language: ' + lang.toUpperCase() + '  ->  assets/screenshots/' + cfg.dir + '/');
+    console.log('Language: ' + lang.toUpperCase() + ' [' + device.toUpperCase() + ']  ->  ' + outPath);
     console.log('='.repeat(55));
-    await runLang(browser, cfg);
+    await runLang(browser, cfg, device);
   }
 
   await browser.close();
@@ -200,7 +217,8 @@ async function runLang(browser, cfg) {
   for (const lang of langs) {
     const cfg = LANG_CONFIG[lang];
     if (!cfg) continue;
-    console.log('  assets/screenshots/' + cfg.dir + '/  (5 files, 1284x2778 px)');
+    const outPath = device === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
+    console.log('  ' + outPath + '  (5 files, ' + px + ' px)');
   }
   console.log('-'.repeat(55));
 })();
