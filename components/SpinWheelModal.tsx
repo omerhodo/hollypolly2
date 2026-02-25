@@ -27,6 +27,7 @@ interface SpinWheelModalProps {
   options: Option[];
   onClose: () => void;
   onSelectWinner: (option: Option) => void;
+  onRemoveAndSpin: (option: Option) => void;
 }
 
 // Easing function: cubic deceleration
@@ -39,6 +40,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   options,
   onClose,
   onSelectWinner,
+  onRemoveAndSpin,
 }) => {
   const t = useTranslations('wheel');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -158,12 +160,12 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Draw pointer (triangle at top)
+      // Draw pointer (triangle at top, pointing DOWN into the wheel)
       const pointerSize = 16;
       ctx.beginPath();
-      ctx.moveTo(centerX, 2);
-      ctx.lineTo(centerX - pointerSize / 2, pointerSize + 2);
-      ctx.lineTo(centerX + pointerSize / 2, pointerSize + 2);
+      ctx.moveTo(centerX, pointerSize + 4);
+      ctx.lineTo(centerX - pointerSize / 2, 2);
+      ctx.lineTo(centerX + pointerSize / 2, 2);
       ctx.closePath();
       ctx.fillStyle = '#1f2937';
       ctx.fill();
@@ -185,27 +187,13 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
     setIsSpinning(true);
     setWinner(null);
 
-    // Pre-determine winner
-    const winnerIndex = Math.floor(Math.random() * options.length);
     const segmentAngle = (2 * Math.PI) / options.length;
-
-    // Calculate target rotation:
-    // The pointer is at the top (12 o'clock = -π/2 in canvas coords = 3π/2 in standard).
-    // We want the winning segment to be under the pointer.
-    // We need to rotate so that the middle of the winning segment aligns with the pointer (top).
-    const targetSegmentCenter = winnerIndex * segmentAngle + segmentAngle / 2;
-    // The pointer is at angle -π/2 (top). Segment at angle 0 starts at 3 o'clock.
-    // For segment center to be at top: rotation + targetSegmentCenter = -π/2 + 2kπ
-    // rotation = -π/2 - targetSegmentCenter + 2kπ
-    // Add several full rotations for dramatic effect (8-12 full spins)
     const fullSpins = 8 + Math.random() * 4; // 8-12 full rotations
+    const extraAngle = Math.random() * 2 * Math.PI; // random landing position
     const baseRotation = rotationRef.current;
-    const targetRotation =
-      baseRotation -
-      (fullSpins * 2 * Math.PI) -
-      (((-Math.PI / 2 - targetSegmentCenter - baseRotation) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 
-    const totalAngle = Math.abs(targetRotation - baseRotation);
+    const targetRotation = baseRotation - (fullSpins * 2 * Math.PI + extraAngle);
+
     const duration = 5000; // 5 seconds
     const startTime = performance.now();
 
@@ -221,7 +209,15 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
       if (progress < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        // Animation complete
+        // Animation complete — read winner from where the pointer actually landed.
+        // Pointer is fixed at angle -π/2 (top of canvas).
+        // Segment i occupies [finalRot + i*seg, finalRot + (i+1)*seg).
+        // Solve: which i contains -π/2?
+        //   (-π/2 - finalRot) mod 2π  /  segmentAngle
+        const pointerOffset =
+          ((-Math.PI / 2 - targetRotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        const winnerIndex = Math.floor(pointerOffset / segmentAngle) % options.length;
+
         setIsSpinning(false);
         const selectedOption = options[winnerIndex];
         setWinner(selectedOption);
@@ -267,10 +263,20 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ type: 'spring', damping: 15 }}
-          className="bg-white rounded-2xl p-6 max-w-sm w-full text-center"
+          className="bg-white rounded-2xl p-6 max-w-sm w-full text-center relative border-4 border-violet-500"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('title')}</h2>
+          {/* Close X Button */}
+          {!isSpinning && (
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors z-10"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
 
           {/* Wheel Container */}
           <div className="relative mx-auto mb-4" style={{ maxWidth: 320 }}>
@@ -292,12 +298,12 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           </AnimatePresence>
 
           {/* Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
             {!winner && (
               <button
                 onClick={spin}
                 disabled={isSpinning || options.length < 2}
-                className="flex-1 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg"
+                className="w-full py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg"
               >
                 {isSpinning ? t('spinning') : t('spinButton')}
               </button>
@@ -310,26 +316,25 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
                     setWinner(null);
                     spin();
                   }}
-                  className="flex-1 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-semibold"
+                  className="w-full py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors font-semibold"
                 >
                   {t('playAgain')}
                 </button>
-                <button
-                  onClick={onClose}
-                  className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
-                >
-                  {t('close')}
-                </button>
+                {options.length > 2 && (
+                  <button
+                    onClick={() => {
+                      const removedOption = winner;
+                      setWinner(null);
+                      rotationRef.current = 0;
+                      setCurrentRotation(0);
+                      onRemoveAndSpin(removedOption);
+                    }}
+                    className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold"
+                  >
+                    {t('removeAndSpin')}
+                  </button>
+                )}
               </>
-            )}
-
-            {!winner && !isSpinning && (
-              <button
-                onClick={onClose}
-                className="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
-              >
-                {t('close')}
-              </button>
             )}
           </div>
         </motion.div>

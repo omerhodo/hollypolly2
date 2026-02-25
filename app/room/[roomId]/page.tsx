@@ -329,6 +329,9 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         options={options}
         onClose={() => setShowSpinWheel(false)}
         onSelectWinner={() => {}}
+        onRemoveAndSpin={async (option) => {
+          await deleteOption(option.id);
+        }}
       />
 
       <Footer />

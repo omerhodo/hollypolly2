@@ -50,6 +50,16 @@ export const LeaveRoomModal: React.FC<LeaveRoomModalProps> = ({
           className="relative bg-white rounded-lg shadow-xl p-6 max-w-md w-full"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Close X Button */}
+          <button
+            onClick={onCancel}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
           {/* Icon */}
           <div className="text-center mb-4">
             <div className="text-5xl mb-2">🚪</div>

@@ -77,11 +77,21 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ type: 'spring', damping: 15 }}
-          className={`bg-white rounded-2xl p-8 max-w-md w-full text-center ${
+          className={`bg-white rounded-2xl p-8 max-w-md w-full text-center relative ${
             isWinner ? 'border-4 border-primary-500' : 'border-4 border-red-500'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Close X Button */}
+          <button
+            onClick={onRestart}
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
           <div className="text-6xl mb-4">{isWinner ? '🎉' : '💔'}</div>
           <h2
             className={`text-3xl font-bold mb-4 ${

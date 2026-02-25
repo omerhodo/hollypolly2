@@ -43,12 +43,11 @@
     "spinWheel": "Çarkı Çevir"
   },
   "wheel": {
-    "title": "Çarkıfelek",
     "winner": "Kazanan",
     "spinButton": "Çevir!",
     "spinning": "Dönüyor...",
-    "close": "Kapat",
-    "playAgain": "Tekrar Çevir"
+    "playAgain": "Tekrar Çevir",
+    "removeAndSpin": "Çıkar & Tekrar Çevir"
   },
   "result": {
     "winnerTitle": "Kazanan!",

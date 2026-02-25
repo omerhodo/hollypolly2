@@ -69,7 +69,7 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          className="relative bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto border-4 border-cyan-500"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -82,9 +82,11 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ×
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
@@ -135,12 +137,6 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
                 className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
               >
                 {t('createNew')}
-              </button>
-              <button
-                onClick={onClose}
-                className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
-              >
-                {t('close')}
               </button>
             </div>
           </div>

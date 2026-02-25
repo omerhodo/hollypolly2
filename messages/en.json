@@ -43,12 +43,11 @@
     "spinWheel": "Spin the Wheel"
   },
   "wheel": {
-    "title": "Spin the Wheel",
     "winner": "Winner",
     "spinButton": "Spin!",
     "spinning": "Spinning...",
-    "close": "Close",
-    "playAgain": "Spin Again"
+    "playAgain": "Spin Again",
+    "removeAndSpin": "Remove & Spin Again"
   },
   "result": {
     "winnerTitle": "Winner!",
