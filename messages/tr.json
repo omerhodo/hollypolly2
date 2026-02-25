@@ -83,5 +83,73 @@
     "message": "Odadan ayrılmak istediğinize emin misiniz? Anasayfaya yönlendirileceksiniz.",
     "confirm": "Evet, Ayrıl",
     "cancel": "Vazgeç"
+  },
+  "privacy": {
+    "meta": {
+      "title": "Gizlilik Politikası — HollyPolly",
+      "description": "HollyPolly Gizlilik Politikası"
+    },
+    "title": "Gizlilik Politikası",
+    "lastUpdated": "Son güncelleme:",
+    "updatedDate": "24 Şubat 2026",
+    "intro": "HollyPolly (\"biz\", \"uygulama\") gerçek zamanlı kura çekme ve rastgele takım oluşturma uygulamasıdır. Gizliliğinizi korumaya kararlıyız. Bu politika; hangi verileri topladığımızı, nasıl kullandığımızı ve haklarınızı açıklar.",
+    "s1": {
+      "title": "1. Topladığımız Bilgiler",
+      "nameLabel": "Görünen ad",
+      "nameText": "Bir odaya katılmak için gönüllü olarak ad girersiniz. Bu ad, geçici olarak bir Firestore oturumu belgesinde saklanır ve oda kapandığında otomatik olarak silinir. Herhangi bir hesap veya kalıcı kimlikle ilişkilendirilmez.",
+      "roomLabel": "Oda verisi",
+      "roomText": "Oluşturduğunuz seçenekler ve katılımcı listeleri yalnızca oturumunuz süresince Firebase Firestore'da saklanır.",
+      "adLabel": "Cihaz ve reklam tanımlayıcıları",
+      "adText": "iOS veya Android uygulamasını kullanıyorsanız Google AdMob, alakalı reklamlar sunmak için cihazınızın reklam tanımlayıcısını (IDFA / GAID) ve kullanım verilerini toplayabilir. Bu yalnızca Apple'ın Uygulama İzleme Şeffaflığı (ATT) istemi aracılığıyla izin vermenizin ardından gerçekleşir.",
+      "analyticsLabel": "Kullanım analitiği",
+      "analyticsText": "Firebase, uygulamayı geliştirmemize yardımcı olmak için anonim çökme ve performans verilerini toplayabilir."
+    },
+    "s2": {
+      "title": "2. Bilgilerinizi Nasıl Kullanıyoruz",
+      "item1": "Firebase Firestore aracılığıyla gerçek zamanlı oda işlevselliği sağlamak için.",
+      "item2": "Seçtiğiniz adı aynı odadaki diğer katılımcılara göstermek için.",
+      "item3": "Google AdMob aracılığıyla reklam sunmak (yalnızca mobil uygulamalar). ATT iznini verirseniz AdMob, kişiselleştirilmiş reklamlar için reklam tanımlayıcınızı kullanabilir; reddederseniz kişiselleştirilmemiş reklamlar gösterilir.",
+      "item4": "Firebase Crashlytics / Performance aracılığıyla uygulama kararlılığını izlemek için."
+    },
+    "s3": {
+      "title": "3. Veri Paylaşımı",
+      "intro": "Kişisel verilerinizi satmıyoruz. Veriler şunlarla paylaşılabilir:",
+      "googleLabel": "Google / Firebase",
+      "googleText": "Firestore gerçek zamanlı veritabanı, kimlik doğrulama ve analitik hizmetleri için. Bkz.",
+      "googleLinkText": "Google Gizlilik Politikası",
+      "admobLabel": "Google AdMob",
+      "admobText": "Mobil uygulamada reklam sunmak için. Bkz.",
+      "admobLinkText": "AdMob Gizlilik ve Veri"
+    },
+    "s4": {
+      "title": "4. Uygulama İzleme Şeffaflığı (iOS)",
+      "p1": "iOS uygulamamız",
+      "p2": "anahtarını içerir; çünkü Google AdMob, sizi uygulamalar genelinde takip etmek için izin isteyebilir. Uygulamayı ilk kez açtığınızda iOS, Apple'ın standart ATT izin iletişim kutusunu gösterir.",
+      "allow": "İzin Ver",
+      "p3": "seçilirse kişiselleştirilmiş reklamlar etkinleşir;",
+      "deny": "Uygulamadan İzlememesini İste",
+      "p4": "seçilirse kişiselleştirilmemiş reklamlar gösterilir. Her iki seçenek de temel uygulama işlevselliğini etkilemez."
+    },
+    "s5": {
+      "title": "5. Veri Saklama",
+      "text": "Oda verileri (adlar, seçenekler), oda kapandığında veya 24 saatlik hareketsizlik sonrasında Firestore'dan otomatik olarak silinir. Uzun vadeli bir kullanıcı veritabanı tutmuyoruz."
+    },
+    "s6": {
+      "title": "6. Çocukların Gizliliği",
+      "text": "HollyPolly 4+ olarak derecelendirilmiştir ve her yaşa uygundur. 13 yaşın altındaki çocuklardan bilerek kişisel bilgi toplamıyoruz. Bir çocuğun kişisel bilgi sağladığını düşünüyorsanız lütfen bizimle iletişime geçin; bilgileri silelim."
+    },
+    "s7": {
+      "title": "7. Haklarınız",
+      "text": "Konumunuza bağlı olarak sahip olduğumuz kişisel verilere erişme, düzeltme veya silme hakkınız olabilir. Kalıcı kullanıcı hesabı saklamadığımız için verilerin büyük çoğunluğu zaten otomatik olarak geçicidir. Herhangi bir talep için aşağıdaki adresten bize ulaşın."
+    },
+    "s8": {
+      "title": "8. Bu Politikadaki Değişiklikler",
+      "text": "Bu Gizlilik Politikasını zaman zaman güncelleyebiliriz. Değişiklikler, güncellenmiş bir tarihle bu sayfada yayımlanır. Değişikliklerin ardından uygulamayı kullanmaya devam etmek yeni politikayı kabul ettiğiniz anlamına gelir."
+    },
+    "s9": {
+      "title": "9. İletişim",
+      "text": "Gizlilikle ilgili sorularınız veya veri silme talepleriniz için şu adresten bize ulaşın:"
+    },
+    "copyright": "© 2026 HollyPolly. Tüm hakları saklıdır."
   }
 }

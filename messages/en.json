@@ -83,5 +83,73 @@
     "message": "Are you sure you want to leave the room? You will be redirected to the home page.",
     "confirm": "Yes, Leave",
     "cancel": "Cancel"
+  },
+  "privacy": {
+    "meta": {
+      "title": "Privacy Policy — HollyPolly",
+      "description": "HollyPolly Privacy Policy"
+    },
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated:",
+    "updatedDate": "February 24, 2026",
+    "intro": "HollyPolly (\"we\", \"our\", or \"the app\") is a real-time lot-drawing and random team creation application. We are committed to protecting your privacy. This policy explains what data we collect, how we use it, and your rights.",
+    "s1": {
+      "title": "1. Information We Collect",
+      "nameLabel": "Display name",
+      "nameText": "You voluntarily enter a name to join a room. This name is stored temporarily in a Firestore session document and is automatically deleted when the room is closed. We do not link it to any account or persistent identity.",
+      "roomLabel": "Room data",
+      "roomText": "Options and participant lists you create are stored in Firebase Firestore only for the duration of your session.",
+      "adLabel": "Device & advertising identifiers",
+      "adText": "If you use the iOS or Android app, Google AdMob may collect your device's advertising identifier (IDFA / GAID) and usage data to serve relevant ads. This occurs only after you grant permission via Apple's App Tracking Transparency (ATT) prompt.",
+      "analyticsLabel": "Usage analytics",
+      "analyticsText": "Firebase may collect anonymised crash and performance data to help us improve the app."
+    },
+    "s2": {
+      "title": "2. How We Use Your Information",
+      "item1": "To provide real-time room functionality via Firebase Firestore.",
+      "item2": "To display your chosen name to other participants in the same room.",
+      "item3": "To serve ads through Google AdMob (mobile apps only). AdMob may use your advertising identifier for personalised ads if you grant ATT permission, or serve non-personalised ads if you decline.",
+      "item4": "To monitor app stability through Firebase Crashlytics / Performance."
+    },
+    "s3": {
+      "title": "3. Data Sharing",
+      "intro": "We do not sell your personal data. Data may be shared with:",
+      "googleLabel": "Google / Firebase",
+      "googleText": "for Firestore real-time database, authentication, and analytics services. See",
+      "googleLinkText": "Google Privacy Policy",
+      "admobLabel": "Google AdMob",
+      "admobText": "for ad serving in the mobile app. See",
+      "admobLinkText": "AdMob Privacy & Data"
+    },
+    "s4": {
+      "title": "4. App Tracking Transparency (iOS)",
+      "p1": "Our iOS app includes the",
+      "p2": "key because Google AdMob may request permission to track you across apps. When you open the app for the first time, iOS will display Apple's standard ATT permission dialog. Selecting",
+      "allow": "Allow",
+      "p3": "enables personalised ads; selecting",
+      "deny": "Ask App Not to Track",
+      "p4": "results in non-personalised ads. Either choice does not affect core app functionality."
+    },
+    "s5": {
+      "title": "5. Data Retention",
+      "text": "Room data (names, options) is deleted from Firestore when the room is closed or automatically after 24 hours of inactivity. We do not maintain any long-term user database."
+    },
+    "s6": {
+      "title": "6. Children's Privacy",
+      "text": "HollyPolly is rated 4+ and is suitable for all ages. We do not knowingly collect personal information from children under 13. If you believe a child has provided personal information, please contact us so we can delete it."
+    },
+    "s7": {
+      "title": "7. Your Rights",
+      "text": "Depending on your location, you may have the right to access, correct, or delete any personal data we hold. Because we store no persistent user accounts, most data is already automatically ephemeral. For any requests, contact us at the address below."
+    },
+    "s8": {
+      "title": "8. Changes to This Policy",
+      "text": "We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated date. Continued use of the app after changes constitutes acceptance of the new policy."
+    },
+    "s9": {
+      "title": "9. Contact",
+      "text": "For privacy-related questions or data deletion requests, please contact us at:"
+    },
+    "copyright": "© 2026 HollyPolly. All rights reserved."
   }
 }
