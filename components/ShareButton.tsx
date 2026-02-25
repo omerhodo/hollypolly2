@@ -6,21 +6,30 @@ import React, { useState } from 'react';
 
 interface ShareButtonProps {
   roomId: string;
+  roomTitle?: string;
 }
 
-export const ShareButton: React.FC<ShareButtonProps> = ({ roomId }) => {
+export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle }) => {
   const t = useTranslations('room');
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/room/${roomId}`;
 
+    // Build a contextual share message that includes the room title
+    const title = roomTitle
+      ? `🎲 ${roomTitle} - HollyPolly`
+      : '🎲 HollyPolly';
+    const text = roomTitle
+      ? `${t('shareInviteWithTitle', { title: roomTitle })}`
+      : t('shareMessage');
+
     // Check if Web Share API is supported (mobile devices)
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'HollyPolly - Kura',
-          text: t('shareMessage') || 'Kura çekimine katılın!',
+          title,
+          text,
           url: url,
         });
       } catch (error) {
@@ -30,9 +39,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roomId }) => {
         }
       }
     } else {
-      // Fallback to clipboard for desktop
+      // Fallback to clipboard for desktop — copy formatted text with link
+      const clipboardText = roomTitle
+        ? `${title}\n${text}\n${url}`
+        : url;
       try {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(clipboardText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {

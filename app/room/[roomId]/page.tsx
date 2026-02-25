@@ -203,7 +203,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky z-30" style={{ top: 'var(--sat, 0px)' }}>
+        <header className="bg-white shadow-sm sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <button
               onClick={() => setShowLeaveModal(true)}
@@ -212,7 +212,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               🎲 HollyPolly
             </button>
             <div className="flex items-center gap-3">
-              <ShareButton roomId={roomId} />
+              <ShareButton roomId={roomId} roomTitle={room?.title} />
               <button
                 onClick={() => setShowInfoModal(true)}
                 className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-full transition-colors"

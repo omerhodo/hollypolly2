@@ -20,6 +20,7 @@
     "share": "Share",
     "copied": "Link copied!",
     "shareMessage": "Join the draw!",
+    "shareInviteWithTitle": "You're invited to the \"{title}\" draw on HollyPolly!",
     "drawName": "Draw Name",
     "selectWinner": "Select Winner",
     "selectLoser": "Select Loser",
