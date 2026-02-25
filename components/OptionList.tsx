@@ -67,11 +67,13 @@ export const OptionList: React.FC<OptionListProps> = ({
           <div className="flex gap-2">
             <input
               type="text"
+              inputMode="text"
               value={titleValue}
               onChange={(e) => setTitleValue(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
               placeholder={tRoom('drawName')}
               autoFocus
+              autoComplete="off"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSaveTitle();
                 if (e.key === 'Escape') setEditingTitle(false);
@@ -117,11 +119,13 @@ export const OptionList: React.FC<OptionListProps> = ({
         <div className="flex gap-2">
           <input
             type="text"
+            inputMode="text"
             value={newOption}
             onChange={(e) => setNewOption(e.target.value)}
             placeholder={t('addPlaceholder')}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             disabled={!isAdmin}
+            autoComplete="off"
           />
           <button
             type="submit"

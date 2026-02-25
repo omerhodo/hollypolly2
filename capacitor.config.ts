@@ -30,7 +30,7 @@ const config: CapacitorConfig = {
       backgroundColor: '#ffffff',
     },
     Keyboard: {
-      resize: KeyboardResize.Body,
+      resize: KeyboardResize.Native,
       resizeOnFullScreen: true,
     },
   },

@@ -19,12 +19,24 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
 
   useEffect(() => {
     if (isOpen) {
+      // Use overflow-y hidden but allow keyboard resize to work
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
     } else {
-      document.body.style.overflow = 'unset';
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, Number.parseInt(scrollY || '0', 10) * -1);
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
     };
   }, [isOpen]);
 
@@ -71,11 +83,13 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
             <div>
               <input
                 type="text"
+                inputMode="text"
                 value={roomTitle}
                 onChange={(e) => setRoomTitle(e.target.value)}
                 placeholder={t('roomTitlePlaceholder')}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:truncate"
                 autoFocus
+                autoComplete="off"
                 disabled={loading}
               />
             </div>
@@ -83,12 +97,14 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
           <div>
             <input
               type="text"
+              inputMode="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('namePlaceholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               required
               autoFocus={!isFirstUser}
+              autoComplete="off"
               disabled={loading}
             />
           </div>

@@ -64,10 +64,12 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
                 <div className="flex gap-2">
                   <input
                     type="text"
+                    inputMode="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     className="flex-1 px-2 py-1 border border-gray-300 rounded"
                     autoFocus
+                    autoComplete="off"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveEdit();
                       if (e.key === 'Escape') handleCancelEdit();

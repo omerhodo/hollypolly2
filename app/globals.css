@@ -35,10 +35,17 @@ input::placeholder {
   white-space: nowrap;
 }
 
+/* Ensure input elements are always interactable on mobile WebView */
+input, textarea, select {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+  touch-action: manipulation;
+}
+
 /* Prevent overscroll/bounce on iOS WebView */
 html, body {
   overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Disable text selection on native (optional, improves native feel) */
