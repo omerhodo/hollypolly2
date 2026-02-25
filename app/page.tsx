@@ -2,6 +2,7 @@
 
 import { useInterstitialAd } from '@/hooks/useCapacitor';
 import { db } from '@/lib/firebase/client';
+import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -31,6 +32,9 @@ export default function HomePage() {
         last_activity: Timestamp.now(),
         result: null,
       });
+
+      // Fire-and-forget: clean up old rooms if limit exceeded
+      triggerRoomCleanup();
 
       // Redirect to the room
       router.push(`/room/${roomId}`);

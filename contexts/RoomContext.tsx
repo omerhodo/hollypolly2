@@ -1,6 +1,7 @@
 'use client';
 
 import { db } from '@/lib/firebase/client';
+import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
 import type { Option, ResultData, Room, TeamData, User } from '@/types';
 import {
   collection,
@@ -73,6 +74,9 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         await setDoc(doc(db, 'rooms', roomId), newRoom);
         setRoom(newRoom);
+
+        // Fire-and-forget: clean up old rooms if limit exceeded
+        triggerRoomCleanup();
       } else {
         setRoom({ id: roomDoc.id, ...roomDoc.data() } as Room);
       }
