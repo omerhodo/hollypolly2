@@ -18,6 +18,7 @@ export interface Room {
   title?: string;
   teams?: TeamData[] | null;
   teamsCreatedCount?: number;
+  spinWheel?: boolean;
 }
 
 export interface Option {

@@ -1,6 +1,7 @@
 'use client';
 
 import { db } from '@/lib/firebase/client';
+import { sanitizeInput } from '@/lib/sanitize';
 import type { LocalStorageUser, User } from '@/types';
 import { Timestamp, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
@@ -87,7 +88,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create new user
       const userId = uuidv4();
       const avatar = generateAvatar(userOrder);
-      const userName = name || `User ${userId.slice(0, 4)}`;
+      const userName = sanitizeInput(name || `User ${userId.slice(0, 4)}`).slice(0, 20);
 
       const newUser: User = {
         id: userId,
@@ -112,11 +113,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [setCurrentUser]);
 
   const updateUserName = useCallback(async (userId: string, newName: string) => {
+    const sanitizedName = sanitizeInput(newName).slice(0, 20);
     const userDoc = doc(db, 'rooms', currentUser?.room_id || '', 'users', userId);
-    await updateDoc(userDoc, { name: newName });
+    await updateDoc(userDoc, { name: sanitizedName });
 
     if (currentUser && currentUser.id === userId) {
-      setCurrentUser({ ...currentUser, name: newName });
+      setCurrentUser({ ...currentUser, name: sanitizedName });
     }
   }, [currentUser, setCurrentUser]);
 

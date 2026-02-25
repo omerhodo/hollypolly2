@@ -41,14 +41,14 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && result) {
+      if (e.key === 'Escape' && result && isAdmin) {
         onRestart();
       }
     };
 
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, [result, onRestart]);
+  }, [result, onRestart, isAdmin]);
 
   if (!result) return null;
 
@@ -62,7 +62,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={onRestart}
+        onClick={isAdmin ? onRestart : undefined}
       >
         {isWinner && windowSize.width > 0 && (
           <Confetti
@@ -82,15 +82,17 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close X Button */}
-          <button
-            onClick={onRestart}
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          {/* Close X Button - Admin only */}
+          {isAdmin && (
+            <button
+              onClick={onRestart}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
 
           <div className="text-6xl mb-4">{isWinner ? '🎉' : '💔'}</div>
           <h2
@@ -105,16 +107,18 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
             <p className="text-2xl font-bold text-gray-800">{selectedOption?.text}</p>
           </div>
 
-          <button
-            onClick={onRestart}
-            className={`w-full py-3 rounded-lg text-white font-semibold transition-colors ${
-              isWinner
-                ? 'bg-primary-500 hover:bg-primary-600'
-                : 'bg-red-500 hover:bg-red-600'
-            }`}
-          >
-            {t('restart')}
-          </button>
+          {isAdmin && (
+            <button
+              onClick={onRestart}
+              className={`w-full py-3 rounded-lg text-white font-semibold transition-colors ${
+                isWinner
+                  ? 'bg-primary-500 hover:bg-primary-600'
+                  : 'bg-red-500 hover:bg-red-600'
+              }`}
+            >
+              {t('restart')}
+            </button>
+          )}
 
           {isAdmin && onShowResultInOptions && (
             <button

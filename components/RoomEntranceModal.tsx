@@ -1,5 +1,6 @@
 'use client';
 
+import { sanitizeInput } from '@/lib/sanitize';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import React, { useEffect, useState } from 'react';
@@ -46,7 +47,9 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
     if (name.trim() && !loading) {
       setLoading(true);
       try {
-        await onSubmit(name.trim(), isFirstUser && roomTitle.trim() ? roomTitle.trim() : undefined);
+        const sanitizedName = sanitizeInput(name.trim());
+        const sanitizedTitle = isFirstUser && roomTitle.trim() ? sanitizeInput(roomTitle.trim()) : undefined;
+        await onSubmit(sanitizedName, sanitizedTitle);
       } catch (error) {
         console.error('Submit error:', error);
         setLoading(false);
@@ -87,8 +90,7 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
                 value={roomTitle}
                 onChange={(e) => setRoomTitle(e.target.value)}
                 placeholder={t('roomTitlePlaceholder')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:truncate"
-                autoFocus
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:truncate"              maxLength={50}                autoFocus
                 autoComplete="off"
                 disabled={loading}
               />
@@ -103,6 +105,7 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
               placeholder={t('namePlaceholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               required
+              maxLength={20}
               autoFocus={!isFirstUser}
               autoComplete="off"
               disabled={loading}

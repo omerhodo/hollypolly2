@@ -37,6 +37,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     restartRoom,
     updateRoomTitle,
     createRandomTeams,
+    openSpinWheel,
+    closeSpinWheel,
   } = useRoom();
 
   const [showEntranceModal, setShowEntranceModal] = useState(false);
@@ -44,7 +46,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [showSpinWheel, setShowSpinWheel] = useState(false);
   const router = useRouter();
   const { showInterstitialAd } = useInterstitialAd();
 
@@ -199,7 +200,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-white shadow-sm sticky top-0 z-30">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <button
               onClick={() => setShowLeaveModal(true)}
@@ -269,7 +270,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 }}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
                 onCreateRandomTeams={handleCreateRandomTeams}
-                onSpinWheel={() => setShowSpinWheel(true)}
+                onSpinWheel={() => openSpinWheel()}
               />
             </div>
           </div>
@@ -302,6 +303,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
             handleCreateRandomTeams(currentTeamCount);
           }
         }}
+        isAdmin={currentUser?.is_admin || false}
       />
 
       <RoomEntranceModal
@@ -325,13 +327,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       />
 
       <SpinWheelModal
-        isOpen={showSpinWheel}
+        isOpen={!!room?.spinWheel}
         options={options}
-        onClose={() => setShowSpinWheel(false)}
+        onClose={() => closeSpinWheel()}
         onSelectWinner={() => {}}
         onRemoveAndSpin={async (option) => {
           await deleteOption(option.id);
         }}
+        isAdmin={currentUser?.is_admin || false}
       />
 
       <Footer />

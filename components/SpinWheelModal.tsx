@@ -28,6 +28,7 @@ interface SpinWheelModalProps {
   onClose: () => void;
   onSelectWinner: (option: Option) => void;
   onRemoveAndSpin: (option: Option) => void;
+  isAdmin?: boolean;
 }
 
 // Easing function: cubic deceleration
@@ -41,6 +42,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   onClose,
   onSelectWinner,
   onRemoveAndSpin,
+  isAdmin = false,
 }) => {
   const t = useTranslations('wheel');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -246,7 +248,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={() => !isSpinning && onClose()}
+        onClick={() => !isSpinning && isAdmin && onClose()}
       >
         {/* Confetti */}
         {winner && windowSize.width > 0 && (
@@ -266,8 +268,8 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           className="bg-white rounded-2xl p-6 max-w-sm w-full text-center relative border-4 border-violet-500"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close X Button */}
-          {!isSpinning && (
+          {/* Close X Button - Admin only */}
+          {!isSpinning && isAdmin && (
             <button
               onClick={onClose}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors z-10"
@@ -299,7 +301,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
 
           {/* Buttons */}
           <div className="flex flex-col gap-3">
-            {!winner && (
+            {!winner && isAdmin && (
               <button
                 onClick={spin}
                 disabled={isSpinning || options.length < 2}
@@ -309,7 +311,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
               </button>
             )}
 
-            {winner && (
+            {winner && isAdmin && (
               <>
                 <button
                   onClick={() => {

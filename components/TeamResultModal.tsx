@@ -16,6 +16,7 @@ interface TeamResultModalProps {
   createdCount?: number;
   onClose: () => void;
   onCreateNew: () => void;
+  isAdmin?: boolean;
 }
 
 export const TeamResultModal: React.FC<TeamResultModalProps> = ({
@@ -25,6 +26,7 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
   createdCount = 0,
   onClose,
   onCreateNew,
+  isAdmin = false,
 }) => {
   const t = useTranslations('teams');
 
@@ -61,7 +63,7 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="absolute inset-0 bg-black bg-opacity-50"
-          onClick={onClose}
+          onClick={isAdmin ? onClose : undefined}
         />
 
         {/* Modal */}
@@ -80,14 +82,16 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
               )}
               <h2 className="text-2xl font-bold text-gray-800">{t('title')}</h2>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* Teams Grid */}
@@ -132,12 +136,14 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
             </p>
 
             <div className="flex gap-3">
-              <button
-                onClick={onCreateNew}
-                className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
-              >
-                {t('createNew')}
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={onCreateNew}
+                  className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
+                >
+                  {t('createNew')}
+                </button>
+              )}
             </div>
           </div>
         </motion.div>

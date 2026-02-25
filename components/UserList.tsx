@@ -1,5 +1,6 @@
 'use client';
 
+import { sanitizeInput } from '@/lib/sanitize';
 import type { User } from '@/types';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -28,7 +29,7 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
 
   const handleSaveEdit = () => {
     if (editingUserId && editName.trim()) {
-      onEditName(editingUserId, editName.trim());
+      onEditName(editingUserId, sanitizeInput(editName.trim()));
       setEditingUserId(null);
     }
   };
@@ -68,6 +69,7 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     className="flex-1 px-2 py-1 border border-gray-300 rounded"
+                    maxLength={20}
                     autoFocus
                     autoComplete="off"
                     onKeyDown={(e) => {

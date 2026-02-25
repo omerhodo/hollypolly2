@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/firebase/client';
 import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
+import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, ResultData, Room, TeamData, User } from '@/types';
 import {
   collection,
@@ -34,6 +35,8 @@ interface RoomContextType {
   cleanupInactiveUsers: () => Promise<void>;
   cleanupEmptyRoom: () => Promise<void>;
   createRandomTeams: (teamCount: number, options: Option[]) => Promise<void>;
+  openSpinWheel: () => Promise<void>;
+  closeSpinWheel: () => Promise<void>;
 }
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -137,7 +140,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newOption: Option = {
       id: optionId,
       room_id: roomId,
-      text,
+      text: sanitizeInput(text),
       created_at: Timestamp.now(),
     };
 
@@ -223,6 +226,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
       result: null,
       teams: null,
       teamsCreatedCount: null,
+      spinWheel: false,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -230,7 +234,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateRoomTitle = useCallback(async (roomId: string, title: string) => {
     // Use setDoc with merge to avoid "no document to update" error
     await setDoc(doc(db, 'rooms', roomId), {
-      title,
+      title: sanitizeInput(title),
       last_activity: Timestamp.now(),
     }, { merge: true });
   }, []);
@@ -260,6 +264,22 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await updateDoc(doc(db, 'rooms', room.id), {
       teams,
       teamsCreatedCount: currentCount + 1,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
+
+  const openSpinWheel = useCallback(async () => {
+    if (!room) return;
+    await updateDoc(doc(db, 'rooms', room.id), {
+      spinWheel: true,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
+
+  const closeSpinWheel = useCallback(async () => {
+    if (!room) return;
+    await updateDoc(doc(db, 'rooms', room.id), {
+      spinWheel: false,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -362,6 +382,8 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cleanupInactiveUsers,
         cleanupEmptyRoom,
         createRandomTeams,
+        openSpinWheel,
+        closeSpinWheel,
       }}
     >
       {children}

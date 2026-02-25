@@ -1,5 +1,6 @@
 'use client';
 
+import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, User } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -47,14 +48,14 @@ export const OptionList: React.FC<OptionListProps> = ({
   const handleAddOption = (e: React.FormEvent) => {
     e.preventDefault();
     if (newOption.trim() && isAdmin) {
-      onAddOption(newOption.trim());
+      onAddOption(sanitizeInput(newOption.trim()));
       setNewOption('');
     }
   };
 
   const handleSaveTitle = () => {
     if (titleValue.trim()) {
-      onUpdateTitle(titleValue.trim());
+      onUpdateTitle(sanitizeInput(titleValue.trim()));
     }
     setEditingTitle(false);
   };
@@ -72,6 +73,7 @@ export const OptionList: React.FC<OptionListProps> = ({
               onChange={(e) => setTitleValue(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
               placeholder={tRoom('drawName')}
+              maxLength={50}
               autoFocus
               autoComplete="off"
               onKeyDown={(e) => {
@@ -125,6 +127,7 @@ export const OptionList: React.FC<OptionListProps> = ({
             placeholder={t('addPlaceholder')}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             disabled={!isAdmin}
+            maxLength={50}
             autoComplete="off"
           />
           <button
