@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  hideBannerAd,
-  initializeAdMob,
-  isNativePlatform,
-  prepareInterstitialAd,
-  removeBannerAd,
-  showBannerAd,
-  showInterstitialAd,
+    hideBannerAd,
+    initializeAdMob,
+    isNativePlatform,
+    prepareInterstitialAd,
+    removeBannerAd,
+    showBannerAd,
+    showInterstitialAd,
 } from '@/lib/capacitor';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -39,11 +39,12 @@ export function useCapacitorInit() {
         // Pre-load the first interstitial
         await prepareInterstitialAd();
 
-        // Configure status bar for mobile
+        // Configure status bar for mobile — solid white, non-transparent
         try {
           const { StatusBar, Style } = await import('@capacitor/status-bar');
           await StatusBar.setStyle({ style: Style.Light });
           await StatusBar.setBackgroundColor({ color: '#ffffff' });
+          await StatusBar.setOverlaysWebView({ overlay: false });
         } catch {
           // StatusBar not available on this platform
         }

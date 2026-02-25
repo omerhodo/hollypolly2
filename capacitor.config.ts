@@ -38,6 +38,7 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     preferredContentMode: 'mobile',
     scheme: 'HollyPolly',
+    backgroundColor: '#ffffff',
   },
   android: {
     allowMixedContent: true,

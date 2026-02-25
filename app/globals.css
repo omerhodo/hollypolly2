@@ -30,6 +30,21 @@ body {
   /* Bottom padding handled by AdBannerSpacer component */
 }
 
+/* Fixed opaque white overlay behind the status bar (safe-area-inset-top).
+   Prevents page content from bleeding through the system status bar area
+   during scroll on notched iOS devices. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background-color: #ffffff;
+  z-index: 9999;
+  pointer-events: none;
+}
+
 input::placeholder {
   text-overflow: ellipsis;
   overflow: hidden;
