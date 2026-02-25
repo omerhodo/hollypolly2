@@ -39,7 +39,16 @@
     "noOptions": "Henüz seçenek eklenmedi",
     "needOptions": "En az 2 seçenek olmalı",
     "createRandomTeams": "Rastgele Takım Oluştur",
-    "teamCount": "Takım Sayısı"
+    "teamCount": "Takım Sayısı",
+    "spinWheel": "Çarkı Çevir"
+  },
+  "wheel": {
+    "title": "Çarkıfelek",
+    "winner": "Kazanan",
+    "spinButton": "Çevir!",
+    "spinning": "Dönüyor...",
+    "close": "Kapat",
+    "playAgain": "Tekrar Çevir"
   },
   "result": {
     "winnerTitle": "Kazanan!",

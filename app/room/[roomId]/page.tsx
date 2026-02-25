@@ -8,6 +8,7 @@ import { OptionList } from '@/components/OptionList';
 import { ResultModal } from '@/components/ResultModal';
 import { RoomEntranceModal } from '@/components/RoomEntranceModal';
 import { ShareButton } from '@/components/ShareButton';
+import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
 import { useRoom } from '@/contexts/RoomContext';
@@ -43,6 +44,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
   const router = useRouter();
   const { showInterstitialAd } = useInterstitialAd();
 
@@ -267,6 +269,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 }}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
                 onCreateRandomTeams={handleCreateRandomTeams}
+                onSpinWheel={() => setShowSpinWheel(true)}
               />
             </div>
           </div>
@@ -319,6 +322,13 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           }
         }}
         isAdmin={currentUser?.is_admin || false}
+      />
+
+      <SpinWheelModal
+        isOpen={showSpinWheel}
+        options={options}
+        onClose={() => setShowSpinWheel(false)}
+        onSelectWinner={() => {}}
       />
 
       <Footer />

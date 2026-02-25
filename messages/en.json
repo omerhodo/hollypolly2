@@ -39,7 +39,16 @@
     "noOptions": "No options added yet",
     "needOptions": "At least 2 options required",
     "createRandomTeams": "Create Random Teams",
-    "teamCount": "Team Count"
+    "teamCount": "Team Count",
+    "spinWheel": "Spin the Wheel"
+  },
+  "wheel": {
+    "title": "Spin the Wheel",
+    "winner": "Winner",
+    "spinButton": "Spin!",
+    "spinning": "Spinning...",
+    "close": "Close",
+    "playAgain": "Spin Again"
   },
   "result": {
     "winnerTitle": "Winner!",

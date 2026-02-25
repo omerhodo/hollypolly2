@@ -17,6 +17,7 @@ interface OptionListProps {
   onSelectLoser: () => void;
   onUpdateTitle: (title: string) => void;
   onCreateRandomTeams: (teamCount: number) => void;
+  onSpinWheel: () => void;
 }
 
 export const OptionList: React.FC<OptionListProps> = ({
@@ -31,6 +32,7 @@ export const OptionList: React.FC<OptionListProps> = ({
   onSelectLoser,
   onUpdateTitle,
   onCreateRandomTeams,
+  onSpinWheel,
 }) => {
   const t = useTranslations('options');
   const tRoom = useTranslations('room');
@@ -232,6 +234,18 @@ export const OptionList: React.FC<OptionListProps> = ({
               </div>
             </div>
             <p className="text-xs text-gray-500 text-center mt-2">{t('teamCount')}: {teamCount}</p>
+          </div>
+
+          {/* Spin Wheel Button */}
+          <div className="mt-6">
+            <button
+              onClick={onSpinWheel}
+              disabled={options.length < 2}
+              className="w-full bg-violet-500 text-white py-3 rounded-lg hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold flex items-center justify-center gap-2"
+            >
+              <span className="text-lg">🎡</span>
+              {t('spinWheel')}
+            </button>
           </div>
         </div>
       )}
