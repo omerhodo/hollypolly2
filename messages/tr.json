@@ -47,7 +47,9 @@
     "spinButton": "Çevir!",
     "spinning": "Dönüyor...",
     "playAgain": "Tekrar Çevir",
-    "removeAndSpin": "Çıkar & Tekrar Çevir"
+    "removeAndSpin": "Çıkar & Tekrar Çevir",
+    "firstTime": "Çark ilk kez çevrildi.",
+    "nthTime": "Çark {count}. defa çevrildi."
   },
   "result": {
     "winnerTitle": "Kazanan!",
@@ -55,7 +57,9 @@
     "restart": "Tekrar Başlat",
     "selected": "Seçilen",
     "removeFromOptions": "Seçeneklerden Çıkar",
-    "adminCanRemoveFromOptions": "Admin seçili olanı seçeneklerden çıkarabilir"
+    "adminCanRemoveFromOptions": "Admin seçili olanı seçeneklerden çıkarabilir",
+    "firstTime": "İlk kez seçim yapıldı.",
+    "nthTime": "{count}. defa seçim yapıldı."
   },
   "entrance": {
     "title": "HollyPolly - Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",

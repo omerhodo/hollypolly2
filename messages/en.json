@@ -47,7 +47,9 @@
     "spinButton": "Spin!",
     "spinning": "Spinning...",
     "playAgain": "Spin Again",
-    "removeAndSpin": "Remove & Spin Again"
+    "removeAndSpin": "Remove & Spin Again",
+    "firstTime": "Wheel spun for the first time.",
+    "nthTime": "Wheel spun {count} times."
   },
   "result": {
     "winnerTitle": "Winner!",
@@ -55,7 +57,9 @@
     "restart": "Restart",
     "selected": "Selected",
     "removeFromOptions": "Remove from Options",
-    "adminCanRemoveFromOptions": "Admin can remove the selected from options"
+    "adminCanRemoveFromOptions": "Admin can remove the selected from options",
+    "firstTime": "Selection made for the first time.",
+    "nthTime": "Selection made {count} times."
   },
   "entrance": {
     "title": "Welcome to HollyPolly - Draw & Random Team Creator App!",

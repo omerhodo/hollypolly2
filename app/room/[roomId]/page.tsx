@@ -39,6 +39,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     createRandomTeams,
     openSpinWheel,
     closeSpinWheel,
+    incrementSpinWheelCount,
   } = useRoom();
 
   const [showEntranceModal, setShowEntranceModal] = useState(false);
@@ -324,17 +325,25 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           }
         }}
         isAdmin={currentUser?.is_admin || false}
+        selectedCount={
+          room?.result?.type === 'winner'
+            ? (room?.winnerSelectedCount || 0)
+            : (room?.loserSelectedCount || 0)
+        }
       />
 
       <SpinWheelModal
         isOpen={!!room?.spinWheel}
         options={options}
         onClose={() => closeSpinWheel()}
-        onSelectWinner={() => {}}
+        onSelectWinner={() => {
+          incrementSpinWheelCount();
+        }}
         onRemoveAndSpin={async (option) => {
           await deleteOption(option.id);
         }}
         isAdmin={currentUser?.is_admin || false}
+        selectedCount={room?.spinWheelSelectedCount || 0}
       />
 
       <Footer />

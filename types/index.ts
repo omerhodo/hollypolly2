@@ -19,6 +19,9 @@ export interface Room {
   teams?: TeamData[] | null;
   teamsCreatedCount?: number;
   spinWheel?: boolean;
+  winnerSelectedCount?: number;
+  loserSelectedCount?: number;
+  spinWheelSelectedCount?: number;
 }
 
 export interface Option {

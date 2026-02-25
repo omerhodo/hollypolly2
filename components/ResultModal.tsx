@@ -12,9 +12,10 @@ interface ResultModalProps {
   onRestart: () => void;
   onShowResultInOptions?: () => void;
   isAdmin?: boolean;
+  selectedCount?: number;
 }
 
-export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRestart, onShowResultInOptions, isAdmin = false }) => {
+export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRestart, onShowResultInOptions, isAdmin = false, selectedCount = 0 }) => {
   const t = useTranslations('result');
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
@@ -106,6 +107,16 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
             <p className="text-sm text-gray-600 mb-2">{t('selected')}</p>
             <p className="text-2xl font-bold text-gray-800">{selectedOption?.text}</p>
           </div>
+
+          {/* Selected count */}
+          {selectedCount > 0 && (
+            <p className="text-sm text-center text-gray-600 mb-4">
+              {selectedCount === 1
+                ? t('firstTime')
+                : t('nthTime', { count: selectedCount })
+              }
+            </p>
+          )}
 
           {isAdmin && (
             <button

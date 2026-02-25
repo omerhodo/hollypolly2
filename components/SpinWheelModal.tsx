@@ -29,6 +29,7 @@ interface SpinWheelModalProps {
   onSelectWinner: (option: Option) => void;
   onRemoveAndSpin: (option: Option) => void;
   isAdmin?: boolean;
+  selectedCount?: number;
 }
 
 // Easing function: cubic deceleration
@@ -43,6 +44,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   onSelectWinner,
   onRemoveAndSpin,
   isAdmin = false,
+  selectedCount = 0,
 }) => {
   const t = useTranslations('wheel');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -301,6 +303,16 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
 
           {/* Buttons */}
           <div className="flex flex-col gap-3">
+            {/* Selected count */}
+            {selectedCount > 0 && (
+              <p className="text-sm text-center text-gray-600">
+                {selectedCount === 1
+                  ? t('firstTime')
+                  : t('nthTime', { count: selectedCount })
+                }
+              </p>
+            )}
+
             {!winner && isAdmin && (
               <button
                 onClick={spin}

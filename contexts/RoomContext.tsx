@@ -37,6 +37,7 @@ interface RoomContextType {
   createRandomTeams: (teamCount: number, options: Option[]) => Promise<void>;
   openSpinWheel: () => Promise<void>;
   closeSpinWheel: () => Promise<void>;
+  incrementSpinWheelCount: () => Promise<void>;
 }
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -213,8 +214,12 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
       option_id: selectedOption.id,
     };
 
+    const countField = type === 'winner' ? 'winnerSelectedCount' : 'loserSelectedCount';
+    const currentCount = (type === 'winner' ? room.winnerSelectedCount : room.loserSelectedCount) || 0;
+
     await updateDoc(doc(db, 'rooms', room.id), {
       result,
+      [countField]: currentCount + 1,
       last_activity: Timestamp.now(),
     });
   }, [room, options]);
@@ -280,6 +285,15 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!room) return;
     await updateDoc(doc(db, 'rooms', room.id), {
       spinWheel: false,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
+
+  const incrementSpinWheelCount = useCallback(async () => {
+    if (!room) return;
+    const currentCount = room.spinWheelSelectedCount || 0;
+    await updateDoc(doc(db, 'rooms', room.id), {
+      spinWheelSelectedCount: currentCount + 1,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -384,6 +398,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createRandomTeams,
         openSpinWheel,
         closeSpinWheel,
+        incrementSpinWheelCount,
       }}
     >
       {children}
