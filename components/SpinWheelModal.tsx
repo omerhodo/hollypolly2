@@ -1,6 +1,6 @@
 'use client';
 
-import type { Option } from '@/types';
+import type { Option, SpinWheelData } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -26,16 +26,21 @@ interface SpinWheelModalProps {
   isOpen: boolean;
   options: Option[];
   onClose: () => void;
-  onSelectWinner: (option: Option) => void;
+  onSelectWinner: () => void;
   onRemoveAndSpin: (option: Option) => void;
   isAdmin?: boolean;
   selectedCount?: number;
+  spinWheelData?: SpinWheelData | null;
+  onStartSpin?: (data: SpinWheelData) => void;
+  onClearSpinData?: () => void;
 }
 
 // Easing function: cubic deceleration
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
+
+const SPIN_DURATION = 5000; // 5 seconds
 
 export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   isOpen,
@@ -45,6 +50,9 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   onRemoveAndSpin,
   isAdmin = false,
   selectedCount = 0,
+  spinWheelData,
+  onStartSpin,
+  onClearSpinData,
 }) => {
   const t = useTranslations('wheel');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +65,8 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
 
   // Track rotation in a ref for animation frame access
   const rotationRef = useRef(0);
+  // Track which spinWheelData timestamp we already processed
+  const lastProcessedTimestamp = useRef(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -86,6 +96,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
       setIsSpinning(false);
       setCurrentRotation(0);
       rotationRef.current = 0;
+      lastProcessedTimestamp.current = 0;
     }
   }, [isOpen]);
 
@@ -185,52 +196,85 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
     drawWheel(currentRotation);
   }, [currentRotation, drawWheel, isOpen]);
 
-  const spin = useCallback(() => {
-    if (isSpinning || options.length < 2) return;
+  // --- Deterministic animation runner (used by ALL clients) ---
+  const runAnimation = useCallback(
+    (targetRotation: number, winnerOptionId: string) => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
 
-    setIsSpinning(true);
-    setWinner(null);
+      setIsSpinning(true);
+      setWinner(null);
+
+      const baseRotation = rotationRef.current;
+      const startTime = performance.now();
+
+      const animate = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / SPIN_DURATION, 1);
+        const easedProgress = easeOutCubic(progress);
+
+        const newRotation = baseRotation + (targetRotation - baseRotation) * easedProgress;
+        rotationRef.current = newRotation;
+        setCurrentRotation(newRotation);
+
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          // Animation complete — find winner by ID
+          setIsSpinning(false);
+          const selectedOption = options.find((o) => o.id === winnerOptionId);
+          if (selectedOption) {
+            setWinner(selectedOption);
+          }
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
+    },
+    [options],
+  );
+
+  // --- Watch spinWheelData from Firestore and trigger animation ---
+  useEffect(() => {
+    if (!spinWheelData) return;
+    if (spinWheelData.timestamp <= lastProcessedTimestamp.current) return;
+
+    lastProcessedTimestamp.current = spinWheelData.timestamp;
+    runAnimation(spinWheelData.targetRotation, spinWheelData.winnerOptionId);
+  }, [spinWheelData, runAnimation]);
+
+  // --- Admin: calculate spin params and write to Firestore ---
+  const handleSpin = useCallback(() => {
+    if (isSpinning || options.length < 2 || !isAdmin) return;
 
     const segmentAngle = (2 * Math.PI) / options.length;
     const fullSpins = 8 + Math.random() * 4; // 8-12 full rotations
-    const extraAngle = Math.random() * 2 * Math.PI; // random landing position
+    const extraAngle = Math.random() * 2 * Math.PI;
     const baseRotation = rotationRef.current;
-
     const targetRotation = baseRotation - (fullSpins * 2 * Math.PI + extraAngle);
 
-    const duration = 5000; // 5 seconds
-    const startTime = performance.now();
+    // Determine winner from target rotation
+    const pointerOffset =
+      ((-Math.PI / 2 - targetRotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    const winnerIndex = Math.floor(pointerOffset / segmentAngle) % options.length;
+    const winnerOption = options[winnerIndex];
 
-    const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutCubic(progress);
+    // Increment spin count
+    onSelectWinner();
 
-      const newRotation = baseRotation + (targetRotation - baseRotation) * easedProgress;
-      rotationRef.current = newRotation;
-      setCurrentRotation(newRotation);
+    // Write to Firestore so ALL clients animate
+    onStartSpin?.({
+      targetRotation,
+      winnerOptionId: winnerOption.id,
+      timestamp: Date.now(),
+    });
+  }, [isSpinning, options, isAdmin, onSelectWinner, onStartSpin]);
 
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        // Animation complete — read winner from where the pointer actually landed.
-        // Pointer is fixed at angle -π/2 (top of canvas).
-        // Segment i occupies [finalRot + i*seg, finalRot + (i+1)*seg).
-        // Solve: which i contains -π/2?
-        //   (-π/2 - finalRot) mod 2π  /  segmentAngle
-        const pointerOffset =
-          ((-Math.PI / 2 - targetRotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-        const winnerIndex = Math.floor(pointerOffset / segmentAngle) % options.length;
-
-        setIsSpinning(false);
-        const selectedOption = options[winnerIndex];
-        setWinner(selectedOption);
-        onSelectWinner(selectedOption);
-      }
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-  }, [isSpinning, options, onSelectWinner]);
+  // --- Admin: play again ---
+  const playAgain = useCallback(() => {
+    onClearSpinData?.();
+    // Small delay to let Firestore clear propagate, then spin again
+    setTimeout(() => handleSpin(), 150);
+  }, [onClearSpinData, handleSpin]);
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -315,7 +359,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
 
             {!winner && isAdmin && (
               <button
-                onClick={spin}
+                onClick={handleSpin}
                 disabled={isSpinning || options.length < 2}
                 className="w-full py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg"
               >
@@ -323,13 +367,14 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
               </button>
             )}
 
+            {!winner && !isAdmin && isSpinning && (
+              <p className="text-gray-500 font-medium">{t('spinning')}</p>
+            )}
+
             {winner && isAdmin && (
               <>
                 <button
-                  onClick={() => {
-                    setWinner(null);
-                    spin();
-                  }}
+                  onClick={playAgain}
                   className="w-full py-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors font-semibold"
                 >
                   {t('playAgain')}
@@ -341,6 +386,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
                       setWinner(null);
                       rotationRef.current = 0;
                       setCurrentRotation(0);
+                      onClearSpinData?.();
                       onRemoveAndSpin(removedOption);
                     }}
                     className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold"

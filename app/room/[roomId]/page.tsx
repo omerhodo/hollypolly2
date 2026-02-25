@@ -40,6 +40,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     openSpinWheel,
     closeSpinWheel,
     incrementSpinWheelCount,
+    startSpinWheel,
+    clearSpinWheelData,
   } = useRoom();
 
   const [showEntranceModal, setShowEntranceModal] = useState(false);
@@ -201,7 +203,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-30">
+        <header className="bg-white shadow-sm sticky z-30" style={{ top: 'var(--sat, 0px)' }}>
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <button
               onClick={() => setShowLeaveModal(true)}
@@ -344,6 +346,9 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         }}
         isAdmin={currentUser?.is_admin || false}
         selectedCount={room?.spinWheelSelectedCount || 0}
+        spinWheelData={room?.spinWheelData}
+        onStartSpin={(data) => startSpinWheel(data)}
+        onClearSpinData={() => clearSpinWheelData()}
       />
 
       <Footer />

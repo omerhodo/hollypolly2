@@ -19,6 +19,7 @@ export interface Room {
   teams?: TeamData[] | null;
   teamsCreatedCount?: number;
   spinWheel?: boolean;
+  spinWheelData?: SpinWheelData | null;
   winnerSelectedCount?: number;
   loserSelectedCount?: number;
   spinWheelSelectedCount?: number;
@@ -39,6 +40,12 @@ export interface ResultData {
 export interface TeamData {
   teamNumber: number;
   members: string[];
+}
+
+export interface SpinWheelData {
+  targetRotation: number;
+  winnerOptionId: string;
+  timestamp: number;
 }
 
 export interface LocalStorageUser {

@@ -96,6 +96,10 @@
     "confirm": "Evet, Ayrıl",
     "cancel": "Vazgeç"
   },
+  "footer": {
+    "createdBy": "Created By",
+    "authorName": "Ömer Hodo"
+  },
   "privacy": {
     "meta": {
       "title": "Gizlilik Politikası — HollyPolly",

@@ -26,6 +26,7 @@ body {
   padding-top: var(--sat);
   padding-left: var(--sal);
   padding-right: var(--sar);
+  padding-bottom: 0;
   /* Bottom padding handled by AdBannerSpacer component */
 }
 

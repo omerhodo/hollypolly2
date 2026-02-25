@@ -96,6 +96,10 @@
     "confirm": "Yes, Leave",
     "cancel": "Cancel"
   },
+  "footer": {
+    "createdBy": "Created By",
+    "authorName": "Ömer Hodo"
+  },
   "privacy": {
     "meta": {
       "title": "Privacy Policy — HollyPolly",

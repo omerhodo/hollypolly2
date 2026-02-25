@@ -3,7 +3,7 @@
 import { db } from '@/lib/firebase/client';
 import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
 import { sanitizeInput } from '@/lib/sanitize';
-import type { Option, ResultData, Room, TeamData, User } from '@/types';
+import type { Option, ResultData, Room, SpinWheelData, TeamData, User } from '@/types';
 import {
   collection,
   deleteDoc,
@@ -38,6 +38,8 @@ interface RoomContextType {
   openSpinWheel: () => Promise<void>;
   closeSpinWheel: () => Promise<void>;
   incrementSpinWheelCount: () => Promise<void>;
+  startSpinWheel: (data: SpinWheelData) => Promise<void>;
+  clearSpinWheelData: () => Promise<void>;
 }
 
 const RoomContext = createContext<RoomContextType | undefined>(undefined);
@@ -232,6 +234,7 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
       teams: null,
       teamsCreatedCount: null,
       spinWheel: false,
+      spinWheelData: null,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -294,6 +297,22 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const currentCount = room.spinWheelSelectedCount || 0;
     await updateDoc(doc(db, 'rooms', room.id), {
       spinWheelSelectedCount: currentCount + 1,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
+
+  const startSpinWheel = useCallback(async (data: SpinWheelData) => {
+    if (!room) return;
+    await updateDoc(doc(db, 'rooms', room.id), {
+      spinWheelData: data,
+      last_activity: Timestamp.now(),
+    });
+  }, [room]);
+
+  const clearSpinWheelData = useCallback(async () => {
+    if (!room) return;
+    await updateDoc(doc(db, 'rooms', room.id), {
+      spinWheelData: null,
       last_activity: Timestamp.now(),
     });
   }, [room]);
@@ -399,6 +418,8 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
         openSpinWheel,
         closeSpinWheel,
         incrementSpinWheelCount,
+        startSpinWheel,
+        clearSpinWheelData,
       }}
     >
       {children}
