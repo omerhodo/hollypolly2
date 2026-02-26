@@ -33,6 +33,7 @@ interface SpinWheelModalProps {
   spinWheelData?: SpinWheelData | null;
   onStartSpin?: (data: SpinWheelData) => void;
   onClearSpinData?: () => void;
+  onSpinComplete?: () => void;
 }
 
 // Easing function: cubic deceleration
@@ -53,6 +54,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   spinWheelData,
   onStartSpin,
   onClearSpinData,
+  onSpinComplete,
 }) => {
   const t = useTranslations('wheel');
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -224,6 +226,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           const selectedOption = options.find((o) => o.id === winnerOptionId);
           if (selectedOption) {
             setWinner(selectedOption);
+            onSpinComplete?.();
           }
         }
       };

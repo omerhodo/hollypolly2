@@ -15,7 +15,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useBannerAd, useInterstitialAd } from '@/hooks/useCapacitor';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useRef, useState } from 'react';
+import { use, useCallback, useEffect, useRef, useState } from 'react';
 
 export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const resolvedParams = use(params);
@@ -53,8 +53,37 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const t = useTranslations('room');
   const { showInterstitialAd } = useInterstitialAd();
 
-  // Track selection counts for interstitial ad throttling (every 3rd action)
-  const selectionCountRef = useRef(0);
+  // Unified action counter for interstitial ad throttling (every 3rd action)
+  const actionCountRef = useRef(0);
+  const pendingSpinAdRef = useRef(false);
+
+  /** Increment unified counter. Returns true if ad should be shown. */
+  const incrementAndCheckAd = useCallback(() => {
+    actionCountRef.current += 1;
+    return actionCountRef.current % 3 === 0;
+  }, []);
+
+  /** Show interstitial immediately (for winner/loser/teams). */
+  const maybeShowAd = useCallback(() => {
+    if (incrementAndCheckAd()) {
+      showInterstitialAd().catch(() => {});
+    }
+  }, [incrementAndCheckAd, showInterstitialAd]);
+
+  /** Mark that a spin-wheel ad is pending (shown 1s after winner reveal). */
+  const markSpinAdPending = useCallback(() => {
+    pendingSpinAdRef.current = incrementAndCheckAd();
+  }, [incrementAndCheckAd]);
+
+  /** Called when spin wheel winner is revealed — show ad after 1s delay. */
+  const handleSpinComplete = useCallback(() => {
+    if (pendingSpinAdRef.current) {
+      pendingSpinAdRef.current = false;
+      setTimeout(() => {
+        showInterstitialAd().catch(() => {});
+      }, 1000);
+    }
+  }, [showInterstitialAd]);
 
   // Show banner ad on room page
   useBannerAd(true);
@@ -274,20 +303,17 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 onClearAllOptions={clearAllOptions}
                 onSelectWinner={() => {
                   selectResult('winner');
-                  selectionCountRef.current += 1;
-                  if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
-                    showInterstitialAd().catch(() => {});
-                  }
+                  maybeShowAd();
                 }}
                 onSelectLoser={() => {
                   selectResult('loser');
-                  selectionCountRef.current += 1;
-                  if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
-                    showInterstitialAd().catch(() => {});
-                  }
+                  maybeShowAd();
                 }}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
-                onCreateRandomTeams={handleCreateRandomTeams}
+                onCreateRandomTeams={(teamCount) => {
+                  handleCreateRandomTeams(teamCount);
+                  maybeShowAd();
+                }}
                 onSpinWheel={() => openSpinWheel()}
               />
             </div>
@@ -323,6 +349,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           if (room?.teams) {
             const currentTeamCount = room.teams.length;
             handleCreateRandomTeams(currentTeamCount);
+            maybeShowAd();
           }
         }}
         isAdmin={currentUser?.is_admin || false}
@@ -359,11 +386,9 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         onClose={() => closeSpinWheel()}
         onSelectWinner={() => {
           incrementSpinWheelCount();
-          selectionCountRef.current += 1;
-          if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
-            showInterstitialAd().catch(() => {});
-          }
+          markSpinAdPending();
         }}
+        onSpinComplete={handleSpinComplete}
         onRemoveAndSpin={async (option) => {
           await deleteOption(option.id);
         }}
