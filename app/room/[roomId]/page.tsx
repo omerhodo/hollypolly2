@@ -201,9 +201,9 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-[100dvh] flex flex-col bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-30">
+        <header className="bg-white shadow-sm shrink-0 z-30">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <button
               onClick={() => setShowLeaveModal(true)}
@@ -238,9 +238,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 py-8 pb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content – scrollable area */}
+        <main className="flex-1 overflow-y-auto overscroll-none">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Users Column */}
             <div className="lg:col-span-1">
               <UserList
@@ -278,7 +279,12 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               />
             </div>
           </div>
+          </div>
         </main>
+
+        {/* Footer – anchored at bottom by flex layout, never shifts on scroll */}
+        <Footer />
+        <AdBannerSpacer />
       </div>
 
       {/* Modals */}
@@ -351,9 +357,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         onStartSpin={(data) => startSpinWheel(data)}
         onClearSpinData={() => clearSpinWheelData()}
       />
-
-      <Footer />
-      <AdBannerSpacer />
     </>
   );
 }
