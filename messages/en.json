@@ -3,7 +3,8 @@
     "title": "HollyPolly",
     "subtitle": "Welcome to the Draw & Random Team Creator App!",
     "createRoom": "Create Room",
-    "creating": "Creating..."
+    "creating": "Creating...",
+    "createError": "An error occurred while creating the room. Please try again."
   },
   "loading": {
     "title": "HollyPolly",
@@ -24,7 +25,12 @@
     "drawName": "Draw Name",
     "selectWinner": "Select Winner",
     "selectLoser": "Select Loser",
-    "kickedFromRoom": "You have been kicked from the room"
+    "kickedFromRoom": "You have been kicked from the room",
+    "kickedTitle": "Kicked from Room",
+    "kickedMessage": "You have been removed from this room by the admin.",
+    "goHome": "Go to Home",
+    "infoTooltip": "Info",
+    "createUserError": "An error occurred while creating the user. Please try again."
   },
   "options": {
     "title": "Options",
@@ -81,7 +87,11 @@
     "step2": "2. Add options (e.g., who cooks, who cleans)",
     "step3": "3. Use Winner/Loser buttons or Create Random Teams",
     "step4": "4. Result is shown to everyone at the same time!",
-    "close": "Close"
+    "close": "Close",
+    "copyright": {
+      "createdBy": "Created By",
+      "authorName": "Ömer Hodo"
+    }
   },
   "teams": {
     "title": "Random Teams",
@@ -96,10 +106,6 @@
     "message": "Are you sure you want to leave the room? You will be redirected to the home page.",
     "confirm": "Yes, Leave",
     "cancel": "Cancel"
-  },
-  "footer": {
-    "createdBy": "Created By",
-    "authorName": "Ömer Hodo"
   },
   "privacy": {
     "meta": {

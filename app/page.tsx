@@ -1,6 +1,6 @@
 'use client';
 
-import { useInterstitialAd } from '@/hooks/useCapacitor';
+import { useBannerAd } from '@/hooks/useCapacitor';
 import { db } from '@/lib/firebase/client';
 import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
@@ -15,7 +15,9 @@ export default function HomePage() {
   const router = useRouter();
   const t = useTranslations('home');
   const [isCreating, setIsCreating] = useState(false);
-  const { showInterstitialAd } = useInterstitialAd();
+
+  // Hide banner ad on home/room-creation screen
+  useBannerAd(false);
 
   const handleCreateRoom = async () => {
     setIsCreating(true);
@@ -39,12 +41,9 @@ export default function HomePage() {
 
       // Redirect to the room
       router.push(`/room/${roomId}`);
-
-      // Show interstitial ad after navigation starts
-      showInterstitialAd().catch(() => {});
     } catch (error) {
       console.error('Error creating room:', error);
-      alert('Oda oluşturulurken hata oluştu. Lütfen tekrar deneyin.');
+      alert(t('createError'));
       setIsCreating(false);
     }
   };

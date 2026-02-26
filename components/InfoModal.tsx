@@ -87,6 +87,21 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
               </ul>
             </div>
           </div>
+
+          {/* Copyright */}
+          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-400">
+              {t('copyright.createdBy')}{' '}
+              <a
+                href="https://www.xhodo.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-500 hover:text-primary-600 hover:underline transition-colors"
+              >
+                {t('copyright.authorName')}
+              </a>
+            </p>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

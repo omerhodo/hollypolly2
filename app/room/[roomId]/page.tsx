@@ -1,7 +1,6 @@
 'use client';
 
 import { AdBannerSpacer } from '@/components/AdBannerSpacer';
-import { Footer } from '@/components/Footer';
 import { InfoModal } from '@/components/InfoModal';
 import { LeaveRoomModal } from '@/components/LeaveRoomModal';
 import { OptionList } from '@/components/OptionList';
@@ -13,9 +12,10 @@ import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
 import { useRoom } from '@/contexts/RoomContext';
 import { useUser } from '@/contexts/UserContext';
-import { useInterstitialAd } from '@/hooks/useCapacitor';
+import { useBannerAd, useInterstitialAd } from '@/hooks/useCapacitor';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 
 export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const resolvedParams = use(params);
@@ -50,7 +50,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const router = useRouter();
+  const t = useTranslations('room');
   const { showInterstitialAd } = useInterstitialAd();
+
+  // Track selection counts for interstitial ad throttling (every 3rd action)
+  const selectionCountRef = useRef(0);
+
+  // Show banner ad on room page
+  useBannerAd(true);
 
   // Check if user was kicked (currentUser exists in state but not in Firestore users list)
   useEffect(() => {
@@ -141,7 +148,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       setShowEntranceModal(false);
     } catch (error) {
       console.error('Error creating user:', error);
-      alert('Kullanıcı oluşturulurken hata oluştu. Lütfen tekrar deneyin.');
+      alert(t('createUserError'));
       throw error; // Re-throw to let modal handle loading state
     }
   };
@@ -186,13 +193,13 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
           <div className="text-6xl mb-4">🚫</div>
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Odadan Atıldınız</h2>
-          <p className="text-gray-600 mb-6">Admin tarafından bu odadan çıkarıldınız.</p>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">{t('kickedTitle')}</h2>
+          <p className="text-gray-600 mb-6">{t('kickedMessage')}</p>
           <button
             onClick={() => window.location.href = '/'}
             className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            Ana Sayfaya Dön
+            {t('goHome')}
           </button>
         </div>
       </div>
@@ -217,7 +224,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               <button
                 onClick={() => setShowInfoModal(true)}
                 className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-full transition-colors"
-                title="Bilgi"
+                title={t('infoTooltip')}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -267,11 +274,17 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 onClearAllOptions={clearAllOptions}
                 onSelectWinner={() => {
                   selectResult('winner');
-                  showInterstitialAd().catch(() => {});
+                  selectionCountRef.current += 1;
+                  if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
+                    showInterstitialAd().catch(() => {});
+                  }
                 }}
                 onSelectLoser={() => {
                   selectResult('loser');
-                  showInterstitialAd().catch(() => {});
+                  selectionCountRef.current += 1;
+                  if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
+                    showInterstitialAd().catch(() => {});
+                  }
                 }}
                 onUpdateTitle={(title) => updateRoomTitle(roomId, title)}
                 onCreateRandomTeams={handleCreateRandomTeams}
@@ -282,8 +295,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           </div>
         </main>
 
-        {/* Footer – anchored at bottom by flex layout, never shifts on scroll */}
-        <Footer />
+        {/* Ad banner spacer – anchored at bottom by flex layout */}
         <AdBannerSpacer />
       </div>
 
@@ -347,6 +359,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         onClose={() => closeSpinWheel()}
         onSelectWinner={() => {
           incrementSpinWheelCount();
+          selectionCountRef.current += 1;
+          if (selectionCountRef.current >= 3 && selectionCountRef.current % 3 === 0) {
+            showInterstitialAd().catch(() => {});
+          }
         }}
         onRemoveAndSpin={async (option) => {
           await deleteOption(option.id);

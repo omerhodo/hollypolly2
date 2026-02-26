@@ -1,13 +1,13 @@
 'use client';
 
 import {
-    hideBannerAd,
-    initializeAdMob,
-    isNativePlatform,
-    prepareInterstitialAd,
-    removeBannerAd,
-    showBannerAd,
-    showInterstitialAd,
+  hideBannerAd,
+  initializeAdMob,
+  isNativePlatform,
+  prepareInterstitialAd,
+  removeBannerAd,
+  showBannerAd,
+  showInterstitialAd,
 } from '@/lib/capacitor';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -33,8 +33,8 @@ export function useCapacitorInit() {
         // Initialize AdMob
         await initializeAdMob();
 
-        // Show banner ad on startup
-        await showBannerAd();
+        // Do NOT show banner ad on startup — individual pages control visibility
+        // via useBannerAd(true/false) hook
 
         // Pre-load the first interstitial
         await prepareInterstitialAd();

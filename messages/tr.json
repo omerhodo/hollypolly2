@@ -3,7 +3,8 @@
     "title": "HollyPolly",
     "subtitle": "Kura Çekme ve Rastgele Takım Oluşturma Uygulamasına Hoşgeldin!",
     "createRoom": "Oda Oluştur",
-    "creating": "Oluşturuluyor..."
+    "creating": "Oluşturuluyor...",
+    "createError": "Oda oluşturulurken hata oluştu. Lütfen tekrar deneyin."
   },
   "loading": {
     "title": "HollyPolly",
@@ -24,7 +25,12 @@
     "drawName": "Kura Adı",
     "selectWinner": "Kazanan Seç",
     "selectLoser": "Kaybeden Seç",
-    "kickedFromRoom": "Odadan atıldınız"
+    "kickedFromRoom": "Odadan atıldınız",
+    "kickedTitle": "Odadan Atıldınız",
+    "kickedMessage": "Admin tarafından bu odadan çıkarıldınız.",
+    "goHome": "Ana Sayfaya Dön",
+    "infoTooltip": "Bilgi",
+    "createUserError": "Kullanıcı oluşturulurken hata oluştu. Lütfen tekrar deneyin."
   },
   "options": {
     "title": "Seçenekler",
@@ -81,7 +87,11 @@
     "step2": "2. Seçenekleri ekleyin (örn: kimin yemek yapacağı, kimin temizlik yapacağı)",
     "step3": "3. Kazanan/Kaybeden seç veya Rastgele Takım Oluştur butonlarını kullanın",
     "step4": "4. Sonuç herkese aynı anda gösterilir!",
-    "close": "Kapat"
+    "close": "Kapat",
+    "copyright": {
+      "createdBy": "Created By",
+      "authorName": "Ömer Hodo"
+    }
   },
   "teams": {
     "title": "Rastgele Takımlar",
@@ -96,10 +106,6 @@
     "message": "Odadan ayrılmak istediğinize emin misiniz? Anasayfaya yönlendirileceksiniz.",
     "confirm": "Evet, Ayrıl",
     "cancel": "Vazgeç"
-  },
-  "footer": {
-    "createdBy": "Created By",
-    "authorName": "Ömer Hodo"
   },
   "privacy": {
     "meta": {
