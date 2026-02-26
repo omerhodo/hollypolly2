@@ -60,13 +60,19 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   /** Increment unified counter. Returns true if ad should be shown. */
   const incrementAndCheckAd = useCallback(() => {
     actionCountRef.current += 1;
-    return actionCountRef.current % 3 === 0;
+    const shouldShow = actionCountRef.current % 3 === 0;
+    return shouldShow;
   }, []);
 
   /** Show interstitial immediately (for winner/loser/teams). */
   const maybeShowAd = useCallback(() => {
     if (incrementAndCheckAd()) {
-      showInterstitialAd().catch(() => {});
+      console.log('[Ad] Triggering interstitial ad NOW');
+      showInterstitialAd().then(function (shown: boolean) {
+        console.log('[Ad] Interstitial result: ' + (shown ? 'shown' : 'NOT shown'));
+      }).catch(function () {
+        console.error('[Ad] Interstitial error');
+      });
     }
   }, [incrementAndCheckAd, showInterstitialAd]);
 
@@ -77,10 +83,16 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
   /** Called when spin wheel winner is revealed — show ad after 1s delay. */
   const handleSpinComplete = useCallback(() => {
+    console.log('[Ad] Spin complete - pending ad: ' + pendingSpinAdRef.current);
     if (pendingSpinAdRef.current) {
       pendingSpinAdRef.current = false;
       setTimeout(() => {
-        showInterstitialAd().catch(() => {});
+        console.log('[Ad] Triggering delayed spin interstitial ad NOW');
+        showInterstitialAd().then(function (shown: boolean) {
+          console.log('[Ad] Spin interstitial result: ' + (shown ? 'shown' : 'NOT shown'));
+        }).catch(function () {
+          console.error('[Ad] Spin interstitial error');
+        });
       }, 1000);
     }
   }, [showInterstitialAd]);

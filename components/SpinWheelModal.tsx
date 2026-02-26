@@ -67,6 +67,9 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
 
   // Track rotation in a ref for animation frame access
   const rotationRef = useRef(0);
+  // Stable ref for onSpinComplete to avoid stale closures in animation frames
+  const onSpinCompleteRef = useRef(onSpinComplete);
+  onSpinCompleteRef.current = onSpinComplete;
   // Track which spinWheelData timestamp we already processed
   const lastProcessedTimestamp = useRef(0);
 
@@ -226,7 +229,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           const selectedOption = options.find((o) => o.id === winnerOptionId);
           if (selectedOption) {
             setWinner(selectedOption);
-            onSpinComplete?.();
+            onSpinCompleteRef.current?.();
           }
         }
       };

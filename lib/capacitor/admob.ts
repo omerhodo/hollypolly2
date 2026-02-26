@@ -59,7 +59,8 @@ const AD_UNITS = {
 };
 
 // Throttle interstitial ads: minimum interval between shows (in ms)
-const INTERSTITIAL_MIN_INTERVAL = 60_000; // 60 seconds
+// Kept low since frequency is already controlled by the action counter (every 3rd action)
+const INTERSTITIAL_MIN_INTERVAL = 30_000; // 30 seconds
 let lastInterstitialTime = 0;
 
 // Track initialization state
