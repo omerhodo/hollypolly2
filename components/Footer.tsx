@@ -34,8 +34,6 @@ export const Footer: React.FC = () => {
             href="https://www.xhodo.com"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: '#fb923c', WebkitTextFillColor: '#fb923c' }}
-            className="hover:underline transition-colors"
           >
             {t('authorName')}
           </a>
