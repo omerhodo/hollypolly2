@@ -26,7 +26,7 @@
     "gen:splash": "python3 assets/gen_splash.py",
     "gen:icons": "python3 assets/gen_icons.py",
     "deploy": "git add -A && git commit -m 'deploy' --allow-empty && git push origin main",
-    "clean:build": "echo '🧹 Cleaning caches...' && rm -rf .next node_modules/.cache ios/App/App/public ios/DerivedData ios/App/Pods && yarn cache clean && echo '📲 Clearing iOS Simulator caches...' && xcrun simctl shutdown all 2>/dev/null; rm -rf ~/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Library/WebKit 2>/dev/null; rm -rf ~/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Library/Caches 2>/dev/null; echo '📦 Installing dependencies...' && yarn install && echo '🚀 Deploying to Vercel...' && vercel --prod --yes && echo '🔄 Syncing Capacitor iOS...' && npx cap sync ios && echo '🍎 Opening Xcode...' && npx cap open ios && echo '✅ Done! Build & run from Xcode.'"
+    "clean:build": "echo '🧹 Cleaning caches...' && rm -rf .next node_modules/.cache ios/App/App/public ios/DerivedData ios/App/Pods && yarn cache clean && echo '📲 Clearing iOS Simulator caches...' && xcrun simctl shutdown all 2>/dev/null; rm -rf ~/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Library/WebKit 2>/dev/null; rm -rf ~/Library/Developer/CoreSimulator/Devices/*/data/Containers/Data/Application/*/Library/Caches 2>/dev/null; echo '📦 Installing dependencies...' && yarn install && echo '🔄 Syncing Capacitor iOS...' && npx cap sync ios && echo '🍎 Opening Xcode...' && npx cap open ios && echo '✅ Done! Build & run from Xcode.'"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
