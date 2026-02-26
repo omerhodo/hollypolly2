@@ -1,6 +1,7 @@
 'use client';
 
-import { AdBannerSpacer } from '@/components/AdBannerSpacer';
+import { useAdBannerHeight } from '@/components/AdBannerSpacer';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { InfoModal } from '@/components/InfoModal';
 import { LeaveRoomModal } from '@/components/LeaveRoomModal';
 import { OptionList } from '@/components/OptionList';
@@ -49,9 +50,13 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [wasKicked, setWasKicked] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingDeleteOptionId, setPendingDeleteOptionId] = useState<string | null>(null);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const router = useRouter();
   const t = useTranslations('room');
+  const tOptions = useTranslations('options');
   const { showInterstitialAd } = useInterstitialAd();
+  const adBannerHeight = useAdBannerHeight();
 
   // Unified action counter for interstitial ad throttling (every 3rd action)
   const actionCountRef = useRef(0);
@@ -287,8 +292,11 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         </header>
 
         {/* Main Content – scrollable area */}
-        <main className="flex-1 min-h-0 overflow-y-auto overscroll-none">
-          <div className="max-w-7xl mx-auto px-4 pt-8 pb-32">
+        <main
+          className="flex-1 min-h-0 overflow-y-auto overscroll-none"
+          style={{ paddingBottom: adBannerHeight > 0 ? `${adBannerHeight}px` : undefined }}
+        >
+          <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Users Column */}
             <div className="lg:col-span-1">
@@ -311,8 +319,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 currentUser={currentUser}
                 roomTitle={room?.title}
                 onAddOption={(text) => addOption(roomId, text)}
-                onDeleteOption={deleteOption}
-                onClearAllOptions={clearAllOptions}
+                onDeleteOption={(optionId) => setPendingDeleteOptionId(optionId)}
+                onClearAllOptions={() => setShowClearAllConfirm(true)}
                 onSelectWinner={() => {
                   selectResult('winner');
                   maybeShowAd();
@@ -332,10 +340,38 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
           </div>
           </div>
         </main>
-
-        {/* Ad banner spacer – flex sibling that shrinks main's visible area by the banner height */}
-        <AdBannerSpacer />
       </div>
+
+      {/* Confirm Modals – rendered outside <main> to avoid iOS overflow:auto stacking context issues */}
+      <ConfirmModal
+        isOpen={!!pendingDeleteOptionId}
+        icon="🗑️"
+        title={tOptions('deleteConfirmTitle')}
+        message={tOptions('deleteConfirmMessage', { option: options.find((o) => o.id === pendingDeleteOptionId)?.text ?? '' })}
+        confirmLabel={tOptions('deleteConfirm')}
+        cancelLabel={tOptions('deleteCancel')}
+        onConfirm={() => {
+          if (pendingDeleteOptionId) {
+            deleteOption(pendingDeleteOptionId);
+          }
+          setPendingDeleteOptionId(null);
+        }}
+        onCancel={() => setPendingDeleteOptionId(null)}
+      />
+
+      <ConfirmModal
+        isOpen={showClearAllConfirm}
+        icon="🗑️"
+        title={tOptions('clearAllConfirmTitle')}
+        message={tOptions('clearAllConfirmMessage')}
+        confirmLabel={tOptions('clearAllConfirm')}
+        cancelLabel={tOptions('clearAllCancel')}
+        onConfirm={() => {
+          clearAllOptions();
+          setShowClearAllConfirm(false);
+        }}
+        onCancel={() => setShowClearAllConfirm(false)}
+      />
 
       {/* Modals */}
       <LeaveRoomModal

@@ -1,8 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -39,19 +38,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     };
   }, [isOpen]);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!isOpen || !mounted) return null;
+  if (!isOpen) return null;
 
   const confirmBtnClass =
     variant === 'red'
       ? 'bg-red-500 hover:bg-red-600'
       : 'bg-primary-500 hover:bg-primary-600';
 
-  return createPortal(
+  return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Backdrop */}
@@ -111,7 +105,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>,
-    document.body
+    </AnimatePresence>
   );
 };

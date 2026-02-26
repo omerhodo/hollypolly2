@@ -1,6 +1,5 @@
 'use client';
 
-import { ConfirmModal } from '@/components/ConfirmModal';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, User } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -42,9 +41,6 @@ export const OptionList: React.FC<OptionListProps> = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(roomTitle || '');
   const [teamCount, setTeamCount] = useState(2);
-  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
-  const [deleteOptionId, setDeleteOptionId] = useState<string | null>(null);
-  const deleteOption = options.find((o) => o.id === deleteOptionId);
 
   const isAdmin = currentUser?.is_admin || false;
 
@@ -164,7 +160,7 @@ export const OptionList: React.FC<OptionListProps> = ({
                 <span className="flex-1 truncate min-w-0">{option.text}</span>
                 {isAdmin && (
                   <button
-                    onClick={() => setDeleteOptionId(option.id)}
+                    onClick={() => onDeleteOption(option.id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     🗑️
@@ -179,7 +175,7 @@ export const OptionList: React.FC<OptionListProps> = ({
       {isAdmin && options.length > 0 && (
         <div className="flex justify-end mb-4">
           <button
-            onClick={() => setShowClearConfirmModal(true)}
+            onClick={() => onClearAllOptions()}
             className="text-sm text-red-500 hover:text-red-700 hover:underline"
           >
             {t('clearAll')}
@@ -259,38 +255,6 @@ export const OptionList: React.FC<OptionListProps> = ({
           </div>
         </div>
       )}
-
-      {/* Clear All Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showClearConfirmModal}
-        icon="🗑️"
-        title={t('clearAllConfirmTitle')}
-        message={t('clearAllConfirmMessage')}
-        confirmLabel={t('clearAllConfirm')}
-        cancelLabel={t('clearAllCancel')}
-        onConfirm={() => {
-          onClearAllOptions();
-          setShowClearConfirmModal(false);
-        }}
-        onCancel={() => setShowClearConfirmModal(false)}
-      />
-
-      {/* Delete Single Option Confirmation Modal */}
-      <ConfirmModal
-        isOpen={!!deleteOptionId}
-        icon="🗑️"
-        title={t('deleteConfirmTitle')}
-        message={t('deleteConfirmMessage', { option: deleteOption?.text ?? '' })}
-        confirmLabel={t('deleteConfirm')}
-        cancelLabel={t('deleteCancel')}
-        onConfirm={() => {
-          if (deleteOptionId) {
-            onDeleteOption(deleteOptionId);
-          }
-          setDeleteOptionId(null);
-        }}
-        onCancel={() => setDeleteOptionId(null)}
-      />
     </div>
   );
 };
