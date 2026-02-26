@@ -69,7 +69,10 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
         className="bg-white rounded-lg p-6 max-w-md w-full"
       >
         <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold text-primary-500 mb-2">🎲 HollyPolly</h2>
+          <div className="flex items-center justify-center gap-2">
+            <img src="/icon-192.png" alt="HollyPolly" className="w-10 h-10" />
+            <h2 className="text-3xl font-bold text-primary-500">HollyPolly</h2>
+          </div>
           <p className="text-base font-normal text-gray-600">{t('subtitle')}</p>
         </div>
         {isFirstUser && (

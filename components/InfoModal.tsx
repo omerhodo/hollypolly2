@@ -48,7 +48,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-3xl">🎲</span>
+              <img src="/icon-192.png" alt="HollyPolly" className="w-8 h-8" />
               <h2 className="text-2xl font-bold text-primary-600">{t('title')}</h2>
             </div>
             <button

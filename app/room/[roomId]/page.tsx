@@ -209,7 +209,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               onClick={() => setShowLeaveModal(true)}
               className="text-2xl font-bold text-primary-600 flex items-center gap-2 hover:text-primary-700 transition-colors cursor-pointer"
             >
-              🎲 HollyPolly
+              <img src="/icon-192.png" alt="HollyPolly" className="w-8 h-8" />
+              HollyPolly
             </button>
             <div className="flex items-center gap-3">
               <ShareButton roomId={roomId} roomTitle={room?.title} />

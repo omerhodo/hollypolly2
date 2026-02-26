@@ -1,4 +1,4 @@
-# 🎲 HollyPolly - Dosya Yapısı
+# 🐧 HollyPolly - Dosya Yapısı
 
 ```
 hollypolly2/

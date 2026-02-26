@@ -6,6 +6,7 @@ import { triggerRoomCleanup } from '@/lib/firebase/roomCleanup';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,7 +56,7 @@ export default function HomePage() {
         animate={{ opacity: 1, scale: 1 }}
         className="text-center"
       >
-        <h1 className="text-6xl font-bold text-primary-600 mb-4">🎲</h1>
+        <Image src="/icon-192.png" alt="HollyPolly" width={96} height={96} className="mx-auto mb-4" />
         <h2 className="text-4xl font-bold text-gray-800 mb-4">{t('title')}</h2>
         <p className="text-gray-600 mb-8">{t('subtitle')}</p>
 

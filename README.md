@@ -1,6 +1,6 @@
 # HollyPolly - Gerçek Zamanlı Kura Çekme Uygulaması
 
-🎲 Arkadaşlarınızla birlikte kura çekin! Gerçek zamanlı oda tabanlı kura çekme uygulaması.
+🐧 Arkadaşlarınızla birlikte kura çekin! Gerçek zamanlı oda tabanlı kura çekme ve rastgele takım oluşturma uygulaması.
 
 ## 🚀 Özellikler
 
@@ -174,4 +174,4 @@ Sorularınız için issue açabilirsiniz.
 
 ---
 
-**HollyPolly** ile keyifli kura çekmeleri! 🎲✨
+**HollyPolly** ile keyifli kura çekmeleri! 🐧✨

@@ -18,8 +18,8 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle }) =
 
     // Build a contextual share message that includes the room title
     const title = roomTitle
-      ? `🎲 ${roomTitle} - HollyPolly`
-      : '🎲 HollyPolly';
+      ? `🐧 ${roomTitle} - HollyPolly`
+      : '🐧 HollyPolly';
     const text = roomTitle
       ? `${t('shareInviteWithTitle', { title: roomTitle })}`
       : t('shareMessage');
