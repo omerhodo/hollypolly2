@@ -1,13 +1,17 @@
 /**
- * HollyPolly - App Store Screenshot Generator (TR + EN)
- * Output: 1284 x 2778 px (iPhone 14 Plus / 6.5" App Store)
- * Folders: assets/screenshots/tr/  and  assets/screenshots/en/
+ * HollyPolly - App Store Screenshot Generator (TR + EN, iPhone + iPad)
+ * Output:
+ *   iPhone: 1284 x 2778 px (iPhone 14 Plus / 6.5" App Store)
+ *   iPad:   2064 x 2752 px (iPad 13" M4 Pro)
+ * Folders: assets/screenshots/{tr,en}/  and  assets/screenshots/ipad/{tr,en}/
  *
  * Usage:
- *   yarn gen:screenshots          -> both languages
- *   yarn gen:screenshots:tr       -> Turkish only
- *   yarn gen:screenshots:en       -> English only
- *   node assets/gen_screenshots.js --lang=tr|en
+ *   yarn gen:screenshots                              -> all (TR+EN, iPhone+iPad)
+ *   yarn gen:screenshots:tr                           -> Turkish only (iPhone+iPad)
+ *   yarn gen:screenshots:en                           -> English only (iPhone+iPad)
+ *   node assets/gen_screenshots.js --device=iphone    -> iPhone only
+ *   node assets/gen_screenshots.js --device=ipad      -> iPad only
+ *   node assets/gen_screenshots.js --lang=tr --device=iphone
  */
 
 const { chromium } = require('playwright');
@@ -41,17 +45,20 @@ const LANG_CONFIG = {
       '03-kazanan-ekrani',
       '04-takimlar-ekrani',
       '05-bilgi-ekrani',
+      '06-cark-cevirme',
     ],
     createBtn:      'Oda Oluştur',
     namePlaceholder: 'Adınızı girin',
     titlePlaceholder: 'Kura-Takım',
     titleValue:     'Kim bulaşık yıkıyor?',
     optPlaceholder: 'Yeni seçenek ekle...',
-    options: ['Ayşe', 'Mehmet', 'Ali', 'Fatma', 'Zeynep'],
+    options: ['Şevket', 'Selin', 'Cengiz', 'Murat', 'Sevinç', 'Erdal'],
     joinBtn:        'Kura Oluştur',
     winnerBtn:      'Kazanan Seç',
+    winnerTitle:    'Kazanan!',
     restartBtn:     'Tekrar Başlat',
     teamsBtn:       'Rastgele Takım Oluştur',
+    spinWheelBtn:   'Çarkı Çevir',
     closeBtn:       'Kapat',
     infoTitle:      'Bilgi',
   },
@@ -64,30 +71,33 @@ const LANG_CONFIG = {
       '03-winner-screen',
       '04-teams-screen',
       '05-info-screen',
+      '06-spin-wheel',
     ],
     createBtn:      'Create Room',
     namePlaceholder: 'Enter your name',
     titlePlaceholder: 'Draw-Team',
     titleValue:     'Who does the dishes?',
     optPlaceholder: 'Add new option...',
-    options: ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'],
+    options: ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'],
     joinBtn:        'Create Draw',
     winnerBtn:      'Select Winner',
+    winnerTitle:    'Winner!',
     restartBtn:     'Restart',
     teamsBtn:       'Create Random Teams',
+    spinWheelBtn:   'Spin the Wheel',
     closeBtn:       'Close',
     infoTitle:      'What is HollyPolly?',
   },
 };
 
 // CLI flags:
-//   --lang=tr|en           (default = both)
-//   --device=iphone|ipad   (default = iphone)
+//   --lang=tr|en               (default = both)
+//   --device=iphone|ipad|all   (default = all → both iPhone + iPad)
 const args = process.argv.slice(2);
 const langArg   = (args.find((a) => a.startsWith('--lang='))   || '').replace('--lang=', '');
 const deviceArg = (args.find((a) => a.startsWith('--device=')) || '').replace('--device=', '');
 const langs = langArg ? [langArg] : ['tr', 'en'];
-const device = deviceArg || 'iphone'; // 'iphone' | 'ipad'
+const devices = deviceArg && deviceArg !== 'all' ? [deviceArg] : ['iphone', 'ipad'];
 
 // ------------------------------------------------------------------
 
@@ -189,7 +199,14 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
   // Pick winner
   console.log('  -> Picking winner...');
   await clickText(page, cfg.winnerBtn);
-  await wait(2500);
+  // Wait for the result modal to appear (it depends on Firebase roundtrip)
+  try {
+    await page.waitForSelector(`h2:has-text("${cfg.winnerTitle}")`, { timeout: 15000 });
+    await wait(1500); // Let confetti + animation settle
+  } catch {
+    console.warn('  WARN: Result modal did not appear, taking screenshot anyway');
+    await wait(3000);
+  }
 
   // SCREEN 3: Winner
   console.log('  -> Screen 3: Winner');
@@ -218,6 +235,17 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
   // SCREEN 5: Info
   console.log('  -> Screen 5: Info');
   await shot(page, subDir, cfg.screens[4]);
+  await closeModal(page);
+  await wait(800);
+
+  // Open spin wheel
+  console.log('  -> Opening spin wheel...');
+  await clickText(page, cfg.spinWheelBtn);
+  await wait(2000);
+
+  // SCREEN 6: Spin Wheel
+  console.log('  -> Screen 6: Spin Wheel');
+  await shot(page, subDir, cfg.screens[5]);
 
   await context.close();
 }
@@ -225,27 +253,32 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
 (async () => {
   const browser = await chromium.launch({ headless: true });
 
-  const px = device === 'ipad' ? '2064x2752' : '1284x2778';
+  for (const deviceType of devices) {
+    const px = deviceType === 'ipad' ? '2064x2752' : '1284x2778';
 
-  for (const lang of langs) {
-    const cfg = LANG_CONFIG[lang];
-    if (!cfg) { console.error('Unknown lang: ' + lang); continue; }
-    const outPath = device === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
-    console.log('\n' + '='.repeat(55));
-    console.log('Language: ' + lang.toUpperCase() + ' [' + device.toUpperCase() + ']  ->  ' + outPath);
-    console.log('='.repeat(55));
-    await runLang(browser, cfg, device);
+    for (const lang of langs) {
+      const cfg = LANG_CONFIG[lang];
+      if (!cfg) { console.error('Unknown lang: ' + lang); continue; }
+      const outPath = deviceType === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
+      console.log('\n' + '='.repeat(55));
+      console.log('Language: ' + lang.toUpperCase() + ' [' + deviceType.toUpperCase() + ']  ->  ' + outPath);
+      console.log('='.repeat(55));
+      await runLang(browser, cfg, deviceType);
+    }
   }
 
   await browser.close();
 
   console.log('\n' + '-'.repeat(55));
   console.log('Done! Output:');
-  for (const lang of langs) {
-    const cfg = LANG_CONFIG[lang];
-    if (!cfg) continue;
-    const outPath = device === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
-    console.log('  ' + outPath + '  (5 files, ' + px + ' px)');
+  for (const deviceType of devices) {
+    const px = deviceType === 'ipad' ? '2064x2752' : '1284x2778';
+    for (const lang of langs) {
+      const cfg = LANG_CONFIG[lang];
+      if (!cfg) continue;
+      const outPath = deviceType === 'ipad' ? `assets/screenshots/ipad/${cfg.dir}/` : `assets/screenshots/${cfg.dir}/`;
+      console.log('  ' + outPath + '  (6 files, ' + px + ' px)');
+    }
   }
   console.log('-'.repeat(55));
 })();
