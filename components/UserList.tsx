@@ -60,7 +60,7 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
               className="rounded-full"
               unoptimized
             />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {editingUserId === user.id ? (
                 <div className="flex gap-2">
                   <input
@@ -91,13 +91,13 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{user.name}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-medium truncate shrink">{user.name}</span>
                   {user.id === currentUser?.id && (
-                    <span className="text-xs text-primary-600">({t('you')})</span>
+                    <span className="text-xs text-primary-600 shrink-0 whitespace-nowrap">({t('you')})</span>
                   )}
                   {user.is_admin && (
-                    <span className="text-xs bg-primary-500 text-white px-2 py-0.5 rounded">
+                    <span className="text-xs bg-primary-500 text-white px-2 py-0.5 rounded shrink-0 whitespace-nowrap">
                       ⭐ {t('admin')}
                     </span>
                   )}

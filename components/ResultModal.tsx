@@ -103,9 +103,9 @@ export const ResultModal: React.FC<ResultModalProps> = ({ result, options, onRes
           >
             {isWinner ? t('winnerTitle') : t('loserTitle')}
           </h2>
-          <div className="bg-gray-100 rounded-lg p-6 mb-6">
+          <div className="bg-gray-100 rounded-lg p-6 mb-6 overflow-hidden">
             <p className="text-sm text-gray-600 mb-2">{t('selected')}</p>
-            <p className="text-2xl font-bold text-gray-800">{selectedOption?.text}</p>
+            <p className="text-2xl font-bold text-gray-800 truncate">{selectedOption?.text}</p>
           </div>
 
           {/* Selected count */}

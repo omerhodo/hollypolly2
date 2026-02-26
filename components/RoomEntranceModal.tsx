@@ -79,9 +79,9 @@ export const RoomEntranceModal: React.FC<RoomEntranceModalProps> = ({ isOpen, on
           <p className="text-gray-600 mb-4 text-sm">{t('firstUser')}</p>
         )}
         {!isFirstUser && existingRoomTitle && (
-          <div className="mb-4 p-3 bg-primary-50 rounded-lg border border-primary-200">
+          <div className="mb-4 p-3 bg-primary-50 rounded-lg border border-primary-200 overflow-hidden">
             <p className="text-sm text-gray-600">{t('joiningDraw')}</p>
-            <p className="font-semibold text-primary-700">{existingRoomTitle}</p>
+            <p className="font-semibold text-primary-700 truncate">{existingRoomTitle}</p>
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">

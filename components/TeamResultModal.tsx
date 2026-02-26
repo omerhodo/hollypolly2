@@ -76,11 +76,11 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
+            <div className="min-w-0 flex-1 mr-2">
               {roomTitle && (
-                <p className="text-sm text-gray-500 mb-1">{roomTitle}</p>
+                <p className="text-sm text-gray-500 mb-1 truncate">{roomTitle}</p>
               )}
-              <h2 className="text-2xl font-bold text-gray-800">{t('title')}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 truncate">{t('title')}</h2>
             </div>
             {isAdmin && (
               <button
@@ -114,10 +114,10 @@ export const TeamResultModal: React.FC<TeamResultModalProps> = ({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 + memberIndex * 0.05 }}
-                      className="flex items-center gap-2 text-gray-700"
+                      className="flex items-center gap-2 text-gray-700 min-w-0"
                     >
-                      <span className="text-sm">👤</span>
-                      <span>{member}</span>
+                      <span className="text-sm shrink-0">👤</span>
+                      <span className="truncate">{member}</span>
                     </motion.li>
                   ))}
                 </ul>

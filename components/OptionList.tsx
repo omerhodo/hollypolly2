@@ -95,8 +95,8 @@ export const OptionList: React.FC<OptionListProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-2xl font-bold text-gray-800 truncate min-w-0">
               {roomTitle || tRoom('drawName')}
             </h1>
             {isAdmin && (
@@ -158,7 +158,7 @@ export const OptionList: React.FC<OptionListProps> = ({
                 transition={{ delay: index * 0.05 }}
                 className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
               >
-                <span className="flex-1">{option.text}</span>
+                <span className="flex-1 truncate min-w-0">{option.text}</span>
                 {isAdmin && (
                   <button
                     onClick={() => onDeleteOption(option.id)}

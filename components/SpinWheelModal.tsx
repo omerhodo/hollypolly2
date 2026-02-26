@@ -337,10 +337,10 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-primary-50 border-2 border-primary-500 rounded-lg p-4 mb-4"
+                className="bg-primary-50 border-2 border-primary-500 rounded-lg p-4 mb-4 overflow-hidden"
               >
                 <p className="text-sm text-primary-600 font-medium">{t('winner')}</p>
-                <p className="text-xl font-bold text-primary-700">{winner.text}</p>
+                <p className="text-xl font-bold text-primary-700 truncate">{winner.text}</p>
               </motion.div>
             )}
           </AnimatePresence>
