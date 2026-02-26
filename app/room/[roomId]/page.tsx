@@ -249,7 +249,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
   return (
     <>
-      <div className="h-[100dvh] flex flex-col bg-gray-50">
+      <div className="fixed inset-0 flex flex-col bg-gray-50" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         {/* Header */}
         <header className="bg-white shadow-sm shrink-0 z-30">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -288,7 +288,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
         {/* Main Content – scrollable area */}
         <main className="flex-1 overflow-y-auto overscroll-none">
-          <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="max-w-7xl mx-auto px-4 pt-8 pb-36">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Users Column */}
             <div className="lg:col-span-1">

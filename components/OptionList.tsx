@@ -1,5 +1,6 @@
 'use client';
 
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, User } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -42,6 +43,8 @@ export const OptionList: React.FC<OptionListProps> = ({
   const [titleValue, setTitleValue] = useState(roomTitle || '');
   const [teamCount, setTeamCount] = useState(2);
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
+  const [deleteOptionId, setDeleteOptionId] = useState<string | null>(null);
+  const deleteOption = options.find((o) => o.id === deleteOptionId);
 
   const isAdmin = currentUser?.is_admin || false;
 
@@ -161,7 +164,7 @@ export const OptionList: React.FC<OptionListProps> = ({
                 <span className="flex-1 truncate min-w-0">{option.text}</span>
                 {isAdmin && (
                   <button
-                    onClick={() => onDeleteOption(option.id)}
+                    onClick={() => setDeleteOptionId(option.id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     🗑️
@@ -258,31 +261,36 @@ export const OptionList: React.FC<OptionListProps> = ({
       )}
 
       {/* Clear All Confirmation Modal */}
-      {showClearConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <h3 className="text-lg font-bold mb-4">{t('clearAllConfirmTitle')}</h3>
-            <p className="text-gray-600 mb-6">{t('clearAllConfirmMessage')}</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowClearConfirmModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                {t('clearAllCancel')}
-              </button>
-              <button
-                onClick={() => {
-                  onClearAllOptions();
-                  setShowClearConfirmModal(false);
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                {t('clearAllConfirm')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showClearConfirmModal}
+        icon="🗑️"
+        title={t('clearAllConfirmTitle')}
+        message={t('clearAllConfirmMessage')}
+        confirmLabel={t('clearAllConfirm')}
+        cancelLabel={t('clearAllCancel')}
+        onConfirm={() => {
+          onClearAllOptions();
+          setShowClearConfirmModal(false);
+        }}
+        onCancel={() => setShowClearConfirmModal(false)}
+      />
+
+      {/* Delete Single Option Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteOptionId}
+        icon="🗑️"
+        title={t('deleteConfirmTitle')}
+        message={t('deleteConfirmMessage', { option: deleteOption?.text ?? '' })}
+        confirmLabel={t('deleteConfirm')}
+        cancelLabel={t('deleteCancel')}
+        onConfirm={() => {
+          if (deleteOptionId) {
+            onDeleteOption(deleteOptionId);
+          }
+          setDeleteOptionId(null);
+        }}
+        onCancel={() => setDeleteOptionId(null)}
+      />
     </div>
   );
 };

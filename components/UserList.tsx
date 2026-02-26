@@ -1,5 +1,6 @@
 'use client';
 
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { User } from '@/types';
 import { motion } from 'framer-motion';
@@ -21,6 +22,8 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
   const t = useTranslations('room');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [kickUserId, setKickUserId] = useState<string | null>(null);
+  const kickUser = users.find((u) => u.id === kickUserId);
 
   const handleStartEdit = (user: User) => {
     setEditingUserId(user.id);
@@ -130,7 +133,7 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
                   </button>
                 )}
                 <button
-                  onClick={() => onKickUser(user.id)}
+                  onClick={() => setKickUserId(user.id)}
                   className="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
                 >
                   {t('kickUser')}
@@ -140,6 +143,23 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
           </motion.div>
         ))}
       </div>
+
+      {/* Kick User Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!kickUserId}
+        icon="🚫"
+        title={t('kickConfirmTitle')}
+        message={t('kickConfirmMessage', { name: kickUser?.name ?? '' })}
+        confirmLabel={t('kickConfirm')}
+        cancelLabel={t('kickCancel')}
+        onConfirm={() => {
+          if (kickUserId) {
+            onKickUser(kickUserId);
+          }
+          setKickUserId(null);
+        }}
+        onCancel={() => setKickUserId(null)}
+      />
     </div>
   );
 };

@@ -44,7 +44,7 @@ export function useCapacitorInit() {
           const { StatusBar, Style } = await import('@capacitor/status-bar');
           await StatusBar.setStyle({ style: Style.Light });
           await StatusBar.setBackgroundColor({ color: '#ffffff' });
-          await StatusBar.setOverlaysWebView({ overlay: false });
+          await StatusBar.setOverlaysWebView({ overlay: true });
         } catch {
           // StatusBar not available on this platform
         }

@@ -35,7 +35,7 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'never',
     preferredContentMode: 'mobile',
     scheme: 'HollyPolly',
     backgroundColor: '#ffffff',
