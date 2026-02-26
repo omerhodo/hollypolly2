@@ -65,18 +65,18 @@ const LANG_CONFIG = {
       '04-teams-screen',
       '05-info-screen',
     ],
-    createBtn:      'Oda Oluştur',  // app button is TR for now
-    namePlaceholder: 'Adınızı girin',
-    titlePlaceholder: 'Kura-Takım',
+    createBtn:      'Create Room',
+    namePlaceholder: 'Enter your name',
+    titlePlaceholder: 'Draw-Team',
     titleValue:     'Who does the dishes?',
-    optPlaceholder: 'Yeni seçenek ekle...',
+    optPlaceholder: 'Add new option...',
     options: ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'],
-    joinBtn:        'Kura Oluştur',
-    winnerBtn:      'Kazanan Seç',
-    restartBtn:     'Tekrar Başlat',
-    teamsBtn:       'Rastgele Takım Oluştur',
-    closeBtn:       'Kapat',
-    infoTitle:      'Bilgi',
+    joinBtn:        'Create Draw',
+    winnerBtn:      'Select Winner',
+    restartBtn:     'Restart',
+    teamsBtn:       'Create Random Teams',
+    closeBtn:       'Close',
+    infoTitle:      'What is HollyPolly?',
   },
 };
 
@@ -101,11 +101,33 @@ async function shot(page, dir, name) {
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function clickText(page, ...texts) {
-  for (const text of texts) {
-    const btn = await page.$(`button:has-text("${text}")`);
-    if (btn) { await btn.click(); return true; }
+  // Retry a few times with short waits for dynamic/animated buttons
+  for (let attempt = 0; attempt < 5; attempt++) {
+    for (const text of texts) {
+      const btn = await page.$(`button:has-text("${text}")`);
+      if (btn) { await btn.click({ force: true }); return true; }
+    }
+    await wait(1000);
   }
   console.warn('  WARN: Button not found: ' + texts.join(' / '));
+  return false;
+}
+
+async function closeModal(page) {
+  await wait(500);
+  // Try clicking the X (close) SVG button inside the modal
+  const xBtns = await page.$$('.fixed button:has(svg)');
+  for (const btn of xBtns) {
+    const box = await btn.boundingBox();
+    if (box) { await btn.click({ force: true }); return true; }
+  }
+  // Fallback: press Escape
+  await page.keyboard.press('Escape');
+  await wait(300);
+  // Last resort: click backdrop
+  const backdrop = await page.$('.absolute.inset-0.bg-black');
+  if (backdrop) { await backdrop.click({ force: true, position: { x: 5, y: 5 } }); return true; }
+  console.warn('  WARN: Could not close modal');
   return false;
 }
 
@@ -126,6 +148,9 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
     userAgent:
       'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) ' +
       'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    extraHTTPHeaders: {
+      'Accept-Language': cfg.locale === 'tr-TR' ? 'tr-TR,tr;q=0.9' : 'en-US,en;q=0.9',
+    },
   });
   const page = await context.newPage();
 
@@ -169,7 +194,9 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
   // SCREEN 3: Winner
   console.log('  -> Screen 3: Winner');
   await shot(page, subDir, cfg.screens[2]);
-  await clickText(page, cfg.restartBtn);
+  // Close winner modal: try restart button first, then generic close
+  const closed = await clickText(page, cfg.restartBtn);
+  if (!closed) await closeModal(page);
   await wait(800);
 
   // Create teams
@@ -180,7 +207,7 @@ async function runLang(browser, cfg, deviceType = 'iphone') {
   // SCREEN 4: Teams
   console.log('  -> Screen 4: Teams');
   await shot(page, subDir, cfg.screens[3]);
-  await clickText(page, cfg.closeBtn);
+  await closeModal(page);
   await wait(800);
 
   // Info modal
