@@ -287,8 +287,8 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         </header>
 
         {/* Main Content – scrollable area */}
-        <main className="flex-1 overflow-y-auto overscroll-none">
-          <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
+        <main className="flex-1 min-h-0 overflow-y-auto overscroll-none">
+          <div className="max-w-7xl mx-auto px-4 pt-8 pb-32">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Users Column */}
             <div className="lg:col-span-1">
@@ -331,9 +331,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
             </div>
           </div>
           </div>
-          {/* Ad banner spacer – inside scroll container so content can scroll past the native ad overlay */}
-          <AdBannerSpacer />
         </main>
+
+        {/* Ad banner spacer – flex sibling that shrinks main's visible area by the banner height */}
+        <AdBannerSpacer />
       </div>
 
       {/* Modals */}

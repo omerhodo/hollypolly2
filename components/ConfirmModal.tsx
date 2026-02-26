@@ -1,7 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -38,14 +39,19 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const confirmBtnClass =
     variant === 'red'
       ? 'bg-red-500 hover:bg-red-600'
       : 'bg-primary-500 hover:bg-primary-600';
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         {/* Backdrop */}
@@ -92,19 +98,20 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
+              className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold text-center"
             >
               {cancelLabel}
             </button>
             <button
               onClick={onConfirm}
-              className={`flex-1 px-4 py-3 text-white rounded-lg transition-colors font-semibold ${confirmBtnClass}`}
+              className={`flex-1 px-4 py-3 text-white rounded-lg transition-colors font-semibold text-center ${confirmBtnClass}`}
             >
               {confirmLabel}
             </button>
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
