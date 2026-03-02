@@ -6,6 +6,7 @@ import {
   isNativePlatform,
   prepareInterstitialAd,
   removeBannerAd,
+  requestTrackingPermission,
   showBannerAd,
   showInterstitialAd,
 } from '@/lib/capacitor';
@@ -30,7 +31,11 @@ export function useCapacitorInit() {
       }
 
       try {
-        // Initialize AdMob
+        // Request ATT permission BEFORE initializing AdMob (iOS requirement)
+        // This must happen before any data collection or ad SDK initialization
+        await requestTrackingPermission();
+
+        // Initialize AdMob (after ATT status is resolved)
         await initializeAdMob();
 
         // Do NOT show banner ad on startup — individual pages control visibility

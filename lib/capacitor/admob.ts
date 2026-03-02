@@ -7,7 +7,7 @@ import {
   type AdOptions,
   type BannerAdOptions
 } from '@capacitor-community/admob';
-import { getPlatform, isNativePlatform } from './platform';
+import { getPlatform, isIOS, isNativePlatform } from './platform';
 
 /**
  * AdMob Service for HollyPolly
@@ -76,8 +76,39 @@ function getAdUnitId(type: 'banner' | 'interstitial'): string {
 }
 
 /**
+ * Request App Tracking Transparency (ATT) authorization on iOS.
+ * Must be called BEFORE AdMob.initialize() so that the tracking
+ * authorization status is resolved and AdMob can serve personalized ads
+ * when the user grants permission.
+ *
+ * On Android or web this is a no-op.
+ *
+ * @see https://developer.apple.com/documentation/apptrackingtransparency
+ */
+export async function requestTrackingPermission(): Promise<void> {
+  if (!isIOS()) return;
+
+  try {
+    // Check current status first — only prompt if not yet determined
+    const { status } = await AdMob.trackingAuthorizationStatus();
+    console.log('[ATT] Current tracking authorization status:', status);
+
+    if (status === 'notDetermined') {
+      await AdMob.requestTrackingAuthorization();
+      // Log the resulting status after user responds
+      const { status: newStatus } = await AdMob.trackingAuthorizationStatus();
+      console.log('[ATT] User responded, new status:', newStatus);
+    }
+  } catch (error) {
+    // ATT framework not available (e.g. iOS < 14) — safe to proceed
+    console.warn('[ATT] requestTrackingAuthorization failed (non-fatal):', error);
+  }
+}
+
+/**
  * Initialize AdMob SDK
- * Must be called once before showing any ads
+ * Must be called once before showing any ads.
+ * ATT permission should be requested before calling this function on iOS.
  */
 export async function initializeAdMob(): Promise<void> {
   if (!isNativePlatform() || isInitialized) return;
