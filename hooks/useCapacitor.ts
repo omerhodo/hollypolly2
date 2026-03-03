@@ -3,6 +3,7 @@
 import {
   hideBannerAd,
   initializeAdMob,
+  isAdsAllowed,
   isNativePlatform,
   prepareInterstitialAd,
   removeBannerAd,
@@ -15,6 +16,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Hook to initialize Capacitor and AdMob on app startup.
  * Should be called once in the root layout or top-level component.
+ *
+ * Flow on iOS:
+ *  1. Wait for view to be visible (delay built into requestTrackingPermission)
+ *  2. Show ATT dialog — user accepts or denies
+ *  3. If accepted → initialize AdMob, prepare interstitial
+ *  4. If denied  → skip AdMob entirely, all ad hooks become no-ops
  */
 export function useCapacitorInit() {
   const [isReady, setIsReady] = useState(false);
@@ -31,18 +38,27 @@ export function useCapacitorInit() {
       }
 
       try {
-        // Request ATT permission BEFORE initializing AdMob (iOS requirement)
-        // This must happen before any data collection or ad SDK initialization
-        await requestTrackingPermission();
+        // ----------------------------------------------------------
+        // 1. Request ATT permission BEFORE initializing AdMob (iOS).
+        //    This must happen before any data collection or ad SDK
+        //    initialization.  The function includes a built-in delay
+        //    to work around iPadOS 26+ timing issues.
+        // ----------------------------------------------------------
+        const adsAllowed = await requestTrackingPermission();
+        console.log('[Capacitor] Tracking permission resolved — ads allowed:', adsAllowed);
 
-        // Initialize AdMob (after ATT status is resolved)
-        await initializeAdMob();
+        // ----------------------------------------------------------
+        // 2. Initialize AdMob ONLY if consent was granted (iOS) or
+        //    on Android (no ATT needed).
+        // ----------------------------------------------------------
+        if (adsAllowed) {
+          await initializeAdMob();
 
-        // Do NOT show banner ad on startup — individual pages control visibility
-        // via useBannerAd(true/false) hook
-
-        // Pre-load the first interstitial
-        await prepareInterstitialAd();
+          // Pre-load the first interstitial
+          await prepareInterstitialAd();
+        } else {
+          console.log('[Capacitor] Ads disabled — user did not grant tracking permission');
+        }
 
         // Configure status bar for mobile — solid white, non-transparent
         try {
@@ -84,10 +100,11 @@ export function useCapacitorInit() {
 /**
  * Hook to manage banner ad visibility.
  * Use this to show/hide the banner ad on specific pages.
+ * No-op if ads are not allowed (ATT denied on iOS).
  */
 export function useBannerAd(visible = true) {
   useEffect(() => {
-    if (!isNativePlatform()) return;
+    if (!isNativePlatform() || !isAdsAllowed()) return;
 
     if (visible) {
       showBannerAd().catch(() => {});
@@ -96,7 +113,7 @@ export function useBannerAd(visible = true) {
     }
 
     return () => {
-      if (!visible) {
+      if (!visible && isAdsAllowed()) {
         // Restore banner when leaving a page that hid it
         showBannerAd().catch(() => {});
       }
@@ -107,10 +124,11 @@ export function useBannerAd(visible = true) {
 /**
  * Hook to show interstitial ads at key moments.
  * Returns a function that can be called to show an interstitial.
+ * Returns false immediately if ads are not allowed.
  */
 export function useInterstitialAd() {
   const showAd = useCallback(async (): Promise<boolean> => {
-    if (!isNativePlatform()) return false;
+    if (!isNativePlatform() || !isAdsAllowed()) return false;
     return showInterstitialAd();
   }, []);
 
@@ -128,4 +146,18 @@ export function useIsNative() {
   }, []);
 
   return native;
+}
+
+/**
+ * Hook to check whether ads are currently allowed.
+ * Returns false on web, when ATT is denied on iOS, or before init.
+ */
+export function useAdsAllowed() {
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    setAllowed(isAdsAllowed());
+  }, []);
+
+  return allowed;
 }

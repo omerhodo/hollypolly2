@@ -25,6 +25,13 @@ import { getPlatform, isIOS, isNativePlatform } from './platform';
  * Ad Placements:
  * - Banner: Bottom of screen (persistent, shown on all pages)
  * - Interstitial: Shown on room creation and after result display
+ *
+ * IMPORTANT — App Tracking Transparency (ATT):
+ * On iOS the ATT permission prompt MUST be displayed and the user must
+ * respond BEFORE any ads are loaded or tracking data is collected.
+ * If the user denies tracking (or the prompt fails to appear) ALL ads
+ * are hidden — no banner, no interstitial.  This satisfies Apple
+ * Guideline 2.1 and ensures no data collection without consent.
  */
 
 // --- Google's official test Ad Unit IDs (safe fallback for development) ---
@@ -66,6 +73,25 @@ let lastInterstitialTime = 0;
 // Track initialization state
 let isInitialized = false;
 
+// ---------------------------------------------------------------------------
+// Tracking consent state
+// On iOS: true only after ATT authorization is explicitly granted.
+// On Android: always true (no ATT framework).
+// On Web: always false (no native ads).
+// ---------------------------------------------------------------------------
+let trackingConsented = false;
+
+/**
+ * Returns whether the user has granted tracking consent (ATT on iOS)
+ * and ads are allowed to be displayed.
+ */
+export function isAdsAllowed(): boolean {
+  if (!isNativePlatform()) return false;
+  // Android does not require ATT — ads are always allowed
+  if (!isIOS()) return true;
+  return trackingConsented;
+}
+
 /**
  * Get the appropriate ad unit ID based on platform
  */
@@ -76,42 +102,92 @@ function getAdUnitId(type: 'banner' | 'interstitial'): string {
 }
 
 /**
+ * Small helper that resolves after `ms` milliseconds.
+ * Used to delay the ATT prompt until the UI is fully visible.
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * Request App Tracking Transparency (ATT) authorization on iOS.
  * Must be called BEFORE AdMob.initialize() so that the tracking
  * authorization status is resolved and AdMob can serve personalized ads
  * when the user grants permission.
  *
- * On Android or web this is a no-op.
+ * On Android the function sets trackingConsented = true and returns
+ * immediately (ATT does not apply). On web it is a no-op.
  *
+ * TIMING: On iOS 15+ / iPadOS 17+, the system silently returns ".denied"
+ * if the prompt is requested before the app's key window is visible.
+ * To avoid this we wait 1.5 s after JS execution before calling the
+ * native API, giving the Capacitor WebView time to fully render.
+ *
+ * @returns `true` if ads may be shown, `false` otherwise.
  * @see https://developer.apple.com/documentation/apptrackingtransparency
  */
-export async function requestTrackingPermission(): Promise<void> {
-  if (!isIOS()) return;
+export async function requestTrackingPermission(): Promise<boolean> {
+  // Android — no ATT needed, ads always allowed
+  if (!isIOS()) {
+    if (isNativePlatform()) {
+      trackingConsented = true;
+    }
+    return trackingConsented;
+  }
 
   try {
+    // ------------------------------------------------------------------
+    // Wait for the native UI to be fully visible.  On iPadOS 26+ the
+    // system suppresses the ATT dialog when the app's scene has not yet
+    // reached the "foregroundActive" state, which happens before the
+    // Capacitor WebView finishes its first meaningful paint.  A short
+    // delay ensures we are past that threshold.
+    // ------------------------------------------------------------------
+    await delay(1500);
+
     // Check current status first — only prompt if not yet determined
     const { status } = await AdMob.trackingAuthorizationStatus();
     console.log('[ATT] Current tracking authorization status:', status);
 
     if (status === 'notDetermined') {
+      // Show the ATT dialog
       await AdMob.requestTrackingAuthorization();
-      // Log the resulting status after user responds
+
+      // Re-check status after user interaction
       const { status: newStatus } = await AdMob.trackingAuthorizationStatus();
       console.log('[ATT] User responded, new status:', newStatus);
+      trackingConsented = newStatus === 'authorized';
+    } else {
+      // Already determined — respect previous choice
+      trackingConsented = status === 'authorized';
     }
+
+    console.log('[ATT] Ads allowed:', trackingConsented);
+    return trackingConsented;
   } catch (error) {
-    // ATT framework not available (e.g. iOS < 14) — safe to proceed
+    // ATT framework not available (e.g. iOS < 14) or unexpected error.
+    // Fail-safe: do NOT show ads when we cannot verify consent.
     console.warn('[ATT] requestTrackingAuthorization failed (non-fatal):', error);
+    trackingConsented = false;
+    return false;
   }
 }
 
 /**
- * Initialize AdMob SDK
+ * Initialize AdMob SDK.
  * Must be called once before showing any ads.
- * ATT permission should be requested before calling this function on iOS.
+ * ATT permission must be resolved before calling this function on iOS.
+ *
+ * If ads are not allowed (ATT denied / error) this function is a no-op.
  */
 export async function initializeAdMob(): Promise<void> {
   if (!isNativePlatform() || isInitialized) return;
+
+  // Guard: do not initialize the ad SDK when consent was not given
+  if (!isAdsAllowed()) {
+    console.log('[AdMob] Skipping initialization — ads not allowed (tracking consent not granted)');
+    return;
+  }
 
   try {
     await AdMob.initialize({
@@ -127,11 +203,12 @@ export async function initializeAdMob(): Promise<void> {
 }
 
 /**
- * Show a banner ad at the bottom of the screen
- * The banner persists until explicitly hidden
+ * Show a banner ad at the bottom of the screen.
+ * The banner persists until explicitly hidden.
+ * No-op when ads are not allowed.
  */
 export async function showBannerAd(): Promise<void> {
-  if (!isNativePlatform() || !isInitialized) return;
+  if (!isNativePlatform() || !isInitialized || !isAdsAllowed()) return;
 
   try {
     const options: BannerAdOptions = {
@@ -183,10 +260,11 @@ export async function hideBannerAd(): Promise<void> {
 }
 
 /**
- * Resume (show) a previously hidden banner ad
+ * Resume (show) a previously hidden banner ad.
+ * No-op when ads are not allowed.
  */
 export async function resumeBannerAd(): Promise<void> {
-  if (!isNativePlatform()) return;
+  if (!isNativePlatform() || !isAdsAllowed()) return;
 
   try {
     await AdMob.resumeBanner();
@@ -211,11 +289,12 @@ export async function removeBannerAd(): Promise<void> {
 }
 
 /**
- * Prepare an interstitial ad for display
- * Call this in advance so the ad is ready when needed
+ * Prepare an interstitial ad for display.
+ * Call this in advance so the ad is ready when needed.
+ * No-op when ads are not allowed.
  */
 export async function prepareInterstitialAd(): Promise<void> {
-  if (!isNativePlatform() || !isInitialized) return;
+  if (!isNativePlatform() || !isInitialized || !isAdsAllowed()) return;
 
   try {
     const options: AdOptions = {
@@ -231,12 +310,12 @@ export async function prepareInterstitialAd(): Promise<void> {
 }
 
 /**
- * Show the prepared interstitial ad
- * Respects throttling (minimum interval between shows)
- * Returns true if the ad was shown, false if throttled or failed
+ * Show the prepared interstitial ad.
+ * Respects throttling (minimum interval between shows).
+ * Returns true if the ad was shown, false if throttled, not allowed, or failed.
  */
 export async function showInterstitialAd(): Promise<boolean> {
-  if (!isNativePlatform() || !isInitialized) return false;
+  if (!isNativePlatform() || !isInitialized || !isAdsAllowed()) return false;
 
   // Throttle check
   const now = Date.now();
