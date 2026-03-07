@@ -57,7 +57,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle }) =
     <div className="relative">
       <button
         onClick={handleShare}
-        className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+        className="px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors max-w-[110px] sm:max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis"
       >
         {t('share')}
       </button>
