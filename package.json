@@ -1,6 +1,6 @@
 {
   "name": "hollypolly-firebase",
-  "version": "2.9.4",
+  "version": "2.9.5",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -17,6 +17,7 @@
     "cap:ios:run": "npx cap run ios",
     "mobile:dev": "echo 'Starting dev server for Capacitor...' && next dev --turbopack",
     "mobile:sync": "npx cap sync",
+    "mobile:ios": "npx cap sync && npx cap open ios",
     "gen:screenshots": "node assets/gen_screenshots.js",
     "gen:screenshots:tr": "node assets/gen_screenshots.js --lang=tr",
     "gen:screenshots:en": "node assets/gen_screenshots.js --lang=en",

@@ -47,21 +47,52 @@ const TEST_AD_UNITS = {
 } as const;
 
 // --- Ad Unit IDs from environment variables with test fallbacks ---
+function getEnvOrDefault(envValue: string | undefined, testDefault: string, type: string, platform: string): string {
+  // If no env value provided, check if we are in production.
+  // In production, falling back to test IDs is usually a mistake (missing env vars on Vercel).
+  if (!envValue) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(`[AdMob] WARNING: Missing environment variable for ${type} on ${platform}. Falling back to Google Test Ad Unit ID. Make sure you set NEXT_PUBLIC_ADMOB_${type.toUpperCase()}_${platform.toUpperCase()} in your Vercel Environment Variables.`);
+    }
+    return testDefault;
+  }
+
+  // If the developer accidentally pasted an App ID (contains ~) instead of an Ad Unit ID (contains /)
+  if (envValue.includes('~')) {
+    console.error(`[AdMob] CRITICAL ERROR: The Environment Variable for ${type} (${platform}) contains a tilde (~). This looks like an App ID, but an Ad Unit ID (containing a slash /) is expected. Ads will likely fail to load. Value: ${envValue}`);
+  }
+
+  return envValue;
+}
+
 const AD_UNITS = {
   banner: {
-    android:
-      process.env.NEXT_PUBLIC_ADMOB_BANNER_ANDROID ||
+    android: getEnvOrDefault(
+      process.env.NEXT_PUBLIC_ADMOB_BANNER_ANDROID,
       TEST_AD_UNITS.banner.android,
-    ios:
-      process.env.NEXT_PUBLIC_ADMOB_BANNER_IOS || TEST_AD_UNITS.banner.ios,
+      'banner',
+      'android'
+    ),
+    ios: getEnvOrDefault(
+      process.env.NEXT_PUBLIC_ADMOB_BANNER_IOS,
+      TEST_AD_UNITS.banner.ios,
+      'banner',
+      'ios'
+    ),
   },
   interstitial: {
-    android:
-      process.env.NEXT_PUBLIC_ADMOB_INTERSTITIAL_ANDROID ||
+    android: getEnvOrDefault(
+      process.env.NEXT_PUBLIC_ADMOB_INTERSTITIAL_ANDROID,
       TEST_AD_UNITS.interstitial.android,
-    ios:
-      process.env.NEXT_PUBLIC_ADMOB_INTERSTITIAL_IOS ||
+      'interstitial',
+      'android'
+    ),
+    ios: getEnvOrDefault(
+      process.env.NEXT_PUBLIC_ADMOB_INTERSTITIAL_IOS,
       TEST_AD_UNITS.interstitial.ios,
+      'interstitial',
+      'ios'
+    ),
   },
 };
 
