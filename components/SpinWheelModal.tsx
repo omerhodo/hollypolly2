@@ -70,6 +70,10 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   // Stable ref for onSpinComplete to avoid stale closures in animation frames
   const onSpinCompleteRef = useRef(onSpinComplete);
   onSpinCompleteRef.current = onSpinComplete;
+  // Mirror spinWheelData as a ref so the open-reset effect can read it without
+  // adding it to the dependency array (avoids infinite re-runs).
+  const spinWheelDataRef = useRef(spinWheelData);
+  spinWheelDataRef.current = spinWheelData;
   // Track which spinWheelData timestamp we already processed
   const lastProcessedTimestamp = useRef(0);
 
@@ -99,9 +103,15 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
     if (isOpen) {
       setWinner(null);
       setIsSpinning(false);
-      setCurrentRotation(0);
-      rotationRef.current = 0;
-      lastProcessedTimestamp.current = 0;
+      // Start from a random rotation so a different segment appears at the top
+      // each time the modal opens — improves perceived fairness.
+      const randomInitial = Math.random() * 2 * Math.PI;
+      setCurrentRotation(randomInitial);
+      rotationRef.current = randomInitial;
+      // Mark any already-stored spinWheelData as processed so it does NOT
+      // replay when the modal is reopened (which would incorrectly show
+      // "first time" text and replay the previous winner animation).
+      lastProcessedTimestamp.current = spinWheelDataRef.current?.timestamp ?? 0;
     }
   }, [isOpen]);
 
@@ -252,22 +262,57 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
   const handleSpin = useCallback(() => {
     if (isSpinning || options.length < 2 || !isAdmin) return;
 
-    const segmentAngle = (2 * Math.PI) / options.length;
-    const fullSpins = 8 + Math.random() * 4; // 8-12 full rotations
-    const extraAngle = Math.random() * 2 * Math.PI;
-    const baseRotation = rotationRef.current;
-    const targetRotation = baseRotation - (fullSpins * 2 * Math.PI + extraAngle);
+    // ── Best-practice randomness ──────────────────────────────────────────────
+    // crypto.getRandomValues gives cryptographically-strong random bits,
+    // much better entropy than Math.random() (which is a PRNG seeded once).
+    // We fill 4 independent uint32 values so each decision uses different bits.
+    const buf = new Uint32Array(4);
+    crypto.getRandomValues(buf);
+    // Scale each uint32 to [0, 1) without modulo bias
+    const cr = (i: number) => buf[i] / 0x100000000;
 
-    // Determine winner from target rotation
-    const pointerOffset =
-      ((-Math.PI / 2 - targetRotation) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-    const winnerIndex = Math.floor(pointerOffset / segmentAngle) % options.length;
+    const TWO_PI = 2 * Math.PI;
+    const segmentAngle = TWO_PI / options.length;
+
+    // ── 1. Pick winner FIRST (uniform among all options) ─────────────────────
+    // This is the key fix: winner is chosen directly, not derived from angle.
+    // Previously the winner was back-calculated from a random angle, which
+    // created subtle bias when extraAngle happened to be near 0 or 2π.
+    const winnerIndex = Math.floor(cr(0) * options.length);
     const winnerOption = options[winnerIndex];
+
+    // ── 2. Random landing position INSIDE the winner segment ─────────────────
+    // Landing in the middle-ish area (avoid segment edges: 10%–90% of segment)
+    // so the pointer clearly rests on the intended segment.
+    const landingOffset = (0.1 + cr(1) * 0.8) * segmentAngle;
+
+    // ── 3. Calculate the exact targetRotation that puts the winner on top ─────
+    // The pointer is at canvas angle −π/2 (12 o'clock).
+    // Segment `winnerIndex` starts at rotation + winnerIndex * segmentAngle.
+    // We need: (pointer_angle − targetRotation) mod 2π = winnerIndex * segmentAngle + landingOffset
+    //   =>  targetRotation ≡ −π/2 − winnerIndex * segmentAngle − landingOffset  (mod 2π)
+    const targetAngleMod = (((-Math.PI / 2) - winnerIndex * segmentAngle - landingOffset) % TWO_PI + TWO_PI) % TWO_PI;
+
+    // How far to spin past the current visual position to reach targetAngleMod
+    // (wheel always spins clockwise = decreasing rotation value)
+    const baseRotation = rotationRef.current;
+    const baseNorm = ((baseRotation % TWO_PI) + TWO_PI) % TWO_PI;
+    const spinPast = baseNorm >= targetAngleMod
+      ? baseNorm - targetAngleMod
+      : baseNorm + TWO_PI - targetAngleMod;
+
+    // ── 4. Integer full-spin count (5–14) with dedicated random bits ──────────
+    // Using an integer avoids a subtle fractional bias: e.g. 8.97 full spins
+    // means the wheel travels slightly less than 9 full circles, causing the
+    // deceleration to consistently feel "almost there then stops".
+    const fullSpins = 5 + Math.floor(cr(2) * 10); // 5, 6, ... 14
+
+    const targetRotation = baseRotation - (fullSpins * TWO_PI + spinPast);
 
     // Increment spin count
     onSelectWinner();
 
-    // Write to Firestore so ALL clients animate
+    // Write to Firestore so ALL clients animate to the same final position
     onStartSpin?.({
       targetRotation,
       winnerOptionId: winnerOption.id,
@@ -281,6 +326,29 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
     // Small delay to let Firestore clear propagate, then spin again
     setTimeout(() => handleSpin(), 150);
   }, [onClearSpinData, handleSpin]);
+
+  // --- Admin: close handler ---
+  // If spinning: finalize immediately (jump to end, reveal winner).
+  // If not spinning: close normally.
+  const handleAdminClose = useCallback(() => {
+    if (isSpinning && spinWheelData) {
+      // Cancel in-progress animation
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      // Jump wheel to final position
+      rotationRef.current = spinWheelData.targetRotation;
+      setCurrentRotation(spinWheelData.targetRotation);
+      setIsSpinning(false);
+      // Reveal winner by ID (already known from Firestore)
+      const finalWinner = options.find((o) => o.id === spinWheelData.winnerOptionId);
+      if (finalWinner) {
+        setWinner(finalWinner);
+        onSpinCompleteRef.current?.();
+      }
+      // Modal stays open so admin can see the result
+    } else {
+      onClose();
+    }
+  }, [isSpinning, spinWheelData, options, onClose]);
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -300,7 +368,7 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={() => !isSpinning && isAdmin && onClose()}
+        onClick={() => isAdmin && handleAdminClose()}
       >
         {/* Confetti */}
         {winner && windowSize.width > 0 && (
@@ -320,10 +388,10 @@ export const SpinWheelModal: React.FC<SpinWheelModalProps> = ({
           className="bg-white rounded-2xl p-6 max-w-sm w-full text-center relative border-4 border-violet-500"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close X Button - Admin only */}
-          {!isSpinning && isAdmin && (
+          {/* Close X Button - Admin only; always clickable */}
+          {isAdmin && (
             <button
-              onClick={onClose}
+              onClick={handleAdminClose}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors z-10"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">

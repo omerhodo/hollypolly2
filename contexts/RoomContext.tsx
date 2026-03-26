@@ -250,8 +250,12 @@ export const RoomProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createRandomTeams = useCallback(async (teamCount: number, options: Option[]) => {
     if (!room || options.length < 2) return;
 
-    // Shuffle options array
-    const shuffled = [...options].sort(() => Math.random() - 0.5);
+    // Fisher-Yates shuffle for unbiased randomness
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
     // Create teams
     const teams: TeamData[] = [];
