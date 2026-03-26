@@ -101,18 +101,32 @@ export function useCapacitorInit() {
  * Hook to manage banner ad visibility.
  * Use this to show/hide the banner ad on specific pages.
  * No-op if ads are not allowed (ATT denied on iOS).
+ *
+ * Listens for 'admob:initialized' so the banner is shown even when
+ * AdMob init completes after this hook has already mounted (race condition fix).
  */
 export function useBannerAd(visible = true) {
   useEffect(() => {
-    if (!isNativePlatform() || !isAdsAllowed()) return;
+    if (!isNativePlatform()) return;
 
-    if (visible) {
-      showBannerAd().catch(() => {});
-    } else {
-      hideBannerAd().catch(() => {});
-    }
+    const tryShow = () => {
+      if (!isAdsAllowed()) return;
+      if (visible) {
+        showBannerAd().catch(() => {});
+      } else {
+        hideBannerAd().catch(() => {});
+      }
+    };
+
+    // Attempt immediately (works if AdMob is already initialized)
+    tryShow();
+
+    // Also attempt when AdMob finishes initializing (handles the race condition
+    // where this hook mounts before initializeAdMob() resolves)
+    window.addEventListener('admob:initialized', tryShow);
 
     return () => {
+      window.removeEventListener('admob:initialized', tryShow);
       if (!visible && isAdsAllowed()) {
         // Restore banner when leaving a page that hid it
         showBannerAd().catch(() => {});
@@ -151,12 +165,16 @@ export function useIsNative() {
 /**
  * Hook to check whether ads are currently allowed.
  * Returns false on web, when ATT is denied on iOS, or before init.
+ * Re-evaluates when AdMob initialization completes.
  */
 export function useAdsAllowed() {
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    setAllowed(isAdsAllowed());
+    const check = () => setAllowed(isAdsAllowed());
+    check();
+    window.addEventListener('admob:initialized', check);
+    return () => window.removeEventListener('admob:initialized', check);
   }, []);
 
   return allowed;

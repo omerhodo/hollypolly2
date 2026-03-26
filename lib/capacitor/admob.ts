@@ -228,6 +228,10 @@ export async function initializeAdMob(): Promise<void> {
 
     isInitialized = true;
     console.log('[AdMob] Initialized successfully');
+    // Notify useBannerAd (and any other listener) that the SDK is ready
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('admob:initialized'));
+    }
   } catch (error) {
     console.error('[AdMob] Initialization failed:', error);
   }
