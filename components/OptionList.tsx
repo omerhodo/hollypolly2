@@ -1,5 +1,6 @@
 'use client';
 
+import { ShareButton } from '@/components/ShareButton';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, User } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -10,6 +11,7 @@ interface OptionListProps {
   options: Option[];
   users: User[];
   currentUser: User | null;
+  roomId: string;
   roomTitle?: string;
   onAddOption: (text: string) => void;
   onDeleteOption: (optionId: string) => void;
@@ -25,6 +27,7 @@ export const OptionList: React.FC<OptionListProps> = ({
   options,
   users,
   currentUser,
+  roomId,
   roomTitle,
   onAddOption,
   onDeleteOption,
@@ -94,7 +97,7 @@ export const OptionList: React.FC<OptionListProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-start justify-between gap-2">
             <h1 className="text-2xl font-bold text-gray-800 truncate min-w-0">
               {roomTitle || tRoom('drawName')}
             </h1>
@@ -104,13 +107,18 @@ export const OptionList: React.FC<OptionListProps> = ({
                   setTitleValue(roomTitle || '');
                   setEditingTitle(true);
                 }}
-                className="text-sm text-primary-600 hover:underline"
+                className="text-sm text-primary-600 hover:underline shrink-0"
               >
                 ✏️
               </button>
             )}
           </div>
         )}
+
+        {/* Share button — outline style, below title */}
+        <div className="mt-2">
+          <ShareButton roomId={roomId} roomTitle={roomTitle} outline />
+        </div>
       </div>
 
       <h2 className="text-xl font-bold mb-4">{t('title')}</h2>

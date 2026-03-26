@@ -7,7 +7,6 @@ import { LeaveRoomModal } from '@/components/LeaveRoomModal';
 import { OptionList } from '@/components/OptionList';
 import { ResultModal } from '@/components/ResultModal';
 import { RoomEntranceModal } from '@/components/RoomEntranceModal';
-import { ShareButton } from '@/components/ShareButton';
 import { SpinWheelModal } from '@/components/SpinWheelModal';
 import { TeamResultModal } from '@/components/TeamResultModal';
 import { UserList } from '@/components/UserList';
@@ -266,7 +265,6 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               HollyPolly
             </button>
             <div className="flex items-center gap-3">
-              <ShareButton roomId={roomId} roomTitle={room?.title} />
               <button
                 onClick={() => setShowInfoModal(true)}
                 className="p-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-full transition-colors"
@@ -317,6 +315,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 options={options}
                 users={users}
                 currentUser={currentUser}
+                roomId={roomId}
                 roomTitle={room?.title}
                 onAddOption={(text) => addOption(roomId, text)}
                 onDeleteOption={(optionId) => setPendingDeleteOptionId(optionId)}

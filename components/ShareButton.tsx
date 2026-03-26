@@ -7,9 +7,10 @@ import React, { useState } from 'react';
 interface ShareButtonProps {
   roomId: string;
   roomTitle?: string;
+  outline?: boolean;
 }
 
-export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle }) => {
+export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle, outline = false }) => {
   const t = useTranslations('room');
   const [copied, setCopied] = useState(false);
 
@@ -57,7 +58,10 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle }) =
     <div className="relative">
       <button
         onClick={handleShare}
-        className="px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors max-w-[110px] sm:max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis"
+        className={outline
+          ? 'flex items-center gap-1.5 px-3 py-1.5 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium'
+          : 'px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors max-w-[110px] sm:max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis'
+        }
       >
         {t('share')}
       </button>

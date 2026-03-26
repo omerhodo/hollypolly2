@@ -104,6 +104,12 @@ let lastInterstitialTime = 0;
 // Track initialization state
 let isInitialized = false;
 
+// Track whether the banner is currently visible (prevents duplicate showBanner calls)
+let bannerVisible = false;
+
+// Track whether banner event listeners have been registered (prevents duplicate registrations)
+let bannerListenersRegistered = false;
+
 // ---------------------------------------------------------------------------
 // Tracking consent state
 // On iOS: true only after ATT authorization is explicitly granted.
@@ -111,6 +117,36 @@ let isInitialized = false;
 // On Web: always false (no native ads).
 // ---------------------------------------------------------------------------
 let trackingConsented = false;
+
+/**
+ * Register banner event listeners once (called after first showBannerAd).
+ */
+function ensureBannerListeners() {
+  if (bannerListenersRegistered) return;
+  bannerListenersRegistered = true;
+
+  AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
+    console.log('[AdMob] Banner ad loaded');
+    bannerVisible = true;
+  });
+
+  AdMob.addListener(BannerAdPluginEvents.FailedToLoad, (error: AdMobError) => {
+    console.error('[AdMob] Banner ad failed to load:', error);
+    bannerVisible = false;
+  });
+
+  AdMob.addListener(BannerAdPluginEvents.SizeChanged, (info) => {
+    console.log('[AdMob] Banner size changed:', info);
+    // Dispatch custom event so React components can adjust layout
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('admob:bannerResize', {
+          detail: { height: info.height },
+        })
+      );
+    }
+  });
+}
 
 /**
  * Returns whether the user has granted tracking consent (ATT on iOS)
@@ -240,10 +276,19 @@ export async function initializeAdMob(): Promise<void> {
 /**
  * Show a banner ad at the bottom of the screen.
  * The banner persists until explicitly hidden.
- * No-op when ads are not allowed.
+ * No-op when ads are not allowed or already visible.
  */
 export async function showBannerAd(): Promise<void> {
   if (!isNativePlatform() || !isInitialized || !isAdsAllowed()) return;
+
+  // Ensure banner event listeners are registered exactly once
+  ensureBannerListeners();
+
+  // Skip if already showing to prevent duplicate showBanner calls
+  if (bannerVisible) {
+    console.log('[AdMob] Banner already visible, skipping showBanner call');
+    return;
+  }
 
   try {
     const options: BannerAdOptions = {
@@ -251,34 +296,16 @@ export async function showBannerAd(): Promise<void> {
       adSize: BannerAdSize.ADAPTIVE_BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
-      isTesting: process.env.NODE_ENV === 'development',
+      isTesting: false, // Always use real ads — test ID is set via NEXT_PUBLIC_ADMOB_* env vars
     };
 
-    // Listen for banner events
-    AdMob.addListener(BannerAdPluginEvents.Loaded, () => {
-      console.log('[AdMob] Banner ad loaded');
-    });
-
-    AdMob.addListener(BannerAdPluginEvents.FailedToLoad, (error: AdMobError) => {
-      console.error('[AdMob] Banner ad failed to load:', error);
-    });
-
-    AdMob.addListener(BannerAdPluginEvents.SizeChanged, (info) => {
-      console.log('[AdMob] Banner size changed:', info);
-      // Dispatch custom event so React components can adjust layout
-      window.dispatchEvent(
-        new CustomEvent('admob:bannerResize', {
-          detail: { height: info.height },
-        })
-      );
-    });
-
     await AdMob.showBanner(options);
-    console.log('[AdMob] Banner ad shown');
+    console.log('[AdMob] Banner ad shown, adId:', options.adId);
   } catch (error) {
     console.error('[AdMob] Failed to show banner:', error);
   }
 }
+
 
 /**
  * Hide the banner ad
@@ -288,6 +315,7 @@ export async function hideBannerAd(): Promise<void> {
 
   try {
     await AdMob.hideBanner();
+    bannerVisible = false;
     console.log('[AdMob] Banner ad hidden');
   } catch (error) {
     console.error('[AdMob] Failed to hide banner:', error);
@@ -317,6 +345,8 @@ export async function removeBannerAd(): Promise<void> {
 
   try {
     await AdMob.removeBanner();
+    bannerVisible = false;
+    bannerListenersRegistered = false; // Allow fresh listener registration after removal
     console.log('[AdMob] Banner ad removed');
   } catch (error) {
     console.error('[AdMob] Failed to remove banner:', error);
@@ -334,7 +364,7 @@ export async function prepareInterstitialAd(): Promise<void> {
   try {
     const options: AdOptions = {
       adId: getAdUnitId('interstitial'),
-      isTesting: process.env.NODE_ENV === 'development',
+      isTesting: false, // Always use real ads — test ID is set via NEXT_PUBLIC_ADMOB_* env vars
     };
 
     await AdMob.prepareInterstitial(options);
