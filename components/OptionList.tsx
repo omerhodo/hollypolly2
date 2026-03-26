@@ -1,6 +1,5 @@
 'use client';
 
-import { ShareButton } from '@/components/ShareButton';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { Option, User } from '@/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -114,11 +113,6 @@ export const OptionList: React.FC<OptionListProps> = ({
             )}
           </div>
         )}
-
-        {/* Share button — outline style, below title */}
-        <div className="mt-2">
-          <ShareButton roomId={roomId} roomTitle={roomTitle} outline />
-        </div>
       </div>
 
       <h2 className="text-xl font-bold mb-4">{t('title')}</h2>

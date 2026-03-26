@@ -302,6 +302,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
                 users={users}
                 currentUser={currentUser}
                 roomId={roomId}
+                roomTitle={room?.title}
                 onMakeAdmin={makeAdmin}
                 onRemoveAdmin={removeAdmin}
                 onEditName={updateUserName}

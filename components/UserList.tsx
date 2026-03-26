@@ -1,6 +1,7 @@
 'use client';
 
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { ShareButton } from '@/components/ShareButton';
 import { sanitizeInput } from '@/lib/sanitize';
 import type { User } from '@/types';
 import { motion } from 'framer-motion';
@@ -12,13 +13,14 @@ interface UserListProps {
   users: User[];
   currentUser: User | null;
   roomId: string;
+  roomTitle?: string;
   onMakeAdmin: (userId: string) => void;
   onRemoveAdmin: (userId: string) => void;
   onEditName: (userId: string, newName: string) => void;
   onKickUser: (userId: string) => void;
 }
 
-export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, onMakeAdmin, onRemoveAdmin, onEditName, onKickUser }) => {
+export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, roomTitle, onMakeAdmin, onRemoveAdmin, onEditName, onKickUser }) => {
   const t = useTranslations('room');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -44,7 +46,10 @@ export const UserList: React.FC<UserListProps> = ({ users, currentUser, roomId, 
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4">{t('participants')}</h2>
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <h2 className="text-xl font-bold truncate min-w-0">{t('participants')}</h2>
+        <ShareButton roomId={roomId} roomTitle={roomTitle} outline />
+      </div>
       <div className="space-y-3">
         {users.map((user) => (
           <motion.div

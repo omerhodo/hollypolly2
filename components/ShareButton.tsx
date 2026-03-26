@@ -59,11 +59,11 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ roomId, roomTitle, out
       <button
         onClick={handleShare}
         className={outline
-          ? 'flex items-center gap-1.5 px-3 py-1.5 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium'
+          ? 'flex items-center gap-1.5 px-3 py-1.5 text-sm border border-primary-500 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors font-medium min-w-0 overflow-hidden'
           : 'px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors max-w-[110px] sm:max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis'
         }
       >
-        {t('share')}
+        <span className="truncate">{t('share')}</span>
       </button>
       <AnimatePresence>
         {copied && (
